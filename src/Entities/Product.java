@@ -49,7 +49,7 @@ public class Product {
         return purchasePrice;
     }
 
-    public void purchasePrice(double purchasePrice) {
+    public void setPurchasePrice(double purchasePrice) {
         this.purchasePrice = purchasePrice;
     }
 

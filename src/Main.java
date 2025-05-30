@@ -1,3 +1,4 @@
+import Connector.SQLiteConnector;
 import Entities.Product;
 import GUI.ProductGUI;
 
@@ -5,7 +6,7 @@ import GUI.ProductGUI;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-
+        SQLiteConnector.initializeDatabase();
 
         ProductGUI pgui = new ProductGUI();
 

@@ -35,7 +35,7 @@ public class CreateProduct extends JDialog {
                 JOptionPane.showMessageDialog(this, "Please fill all the necessary fields!");
                 return;
             }
-
+            //O PAVLOS PROTEINEI TIN XRISI WHILE EDW
             //TODO: MORE VALIDATION CHECKS
 
             try {

@@ -46,11 +46,11 @@ public class Product {
     }
 
     public double getPurchasePrice() {
-            return purchasePrice;
-        }
+        return purchasePrice;
+    }
 
     public void purchasePrice(double purchasePrice) {
-            this.purchasePrice = purchasePrice;
+        this.purchasePrice = purchasePrice;
     }
 
 

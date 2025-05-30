@@ -8,4 +8,6 @@ public class UpdateProduct {
     private JTextField textField3;
     private JTextField textField4;
     private JTextField textField5;
+    private JButton saveButton;
+    private JButton cancelButton;
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Customer {
 
-    private int customerId;
+    private int id;
     private String name;
     private String email;
     private String phone;
@@ -14,8 +14,7 @@ public class Customer {
     //private ArrayList<Sales> salesHistory = new ArrayList<Sales>();
 
 
-    public Customer(int customerId, String name, String email, String phone, String gender, int loyaltyPoints, int age) {
-        this.customerId = customerId;
+    public Customer( String name, String email, String phone, String gender,  int age) {
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -23,13 +22,16 @@ public class Customer {
         this.age = age;
         //this.loyaltyPoints = loyaltyPoints;
     }
+//TODO - MIPWS TA LOYALTY POINTS NA GINOUN KLASI KAI OXI PEDIO AFTI TIN FORA?
 
-    public int getCustomerId() {
-        return customerId;
+    public Customer() {}
+
+    public int getId() {
+        return id;
     }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -91,7 +93,7 @@ public class Customer {
     @Override
     public String toString() {
         return "Customer{" +
-                "customerId = " + customerId +
+                "Id = " + id +
                 ", name = '" + name + '\'' +
                 ", email = '" + email + '\'' +
                 ", phone = '" + phone + '\'' +

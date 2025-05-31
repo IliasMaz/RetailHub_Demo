@@ -21,7 +21,7 @@ public class SQLiteConnector {
 
             String sqlProducts = "CREATE TABLE IF NOT EXISTS Products (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "name TEXT NOT NULL," +
+                    "name TEXT NOT NULL UNIQUE," +
                     "sellPrice REAL NOT NULL," +
                     "purchasePrice REAL NOT NULL," +
                     "stock INTEGER NOT NULL," +

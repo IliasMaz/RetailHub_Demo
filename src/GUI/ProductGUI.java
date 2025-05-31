@@ -4,6 +4,7 @@ import Entities.Product;
 import Services.ProductService;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -46,23 +47,56 @@ public class ProductGUI  extends JFrame{
             }
         });
         updateButton.addActionListener(e-> {
-
-
-        });
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
+            int row = table1.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Επίλεξε πρώτα προϊόν!");
+                return;
             }
-        });
-        showAllButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            int id = (int) table1.getValueAt(row, 0);
+            Product product = productService.getProductById(id);
 
+            UpdateProduct dialog = new UpdateProduct(product);
+            dialog.setVisible(true);
+
+            Product updatedProduct = dialog.getProduct();
+            if (updatedProduct != null) {
+                productService.updateProduct(updatedProduct);
+                refreshTable();
             }
+
         });
+
+        deleteButton.addActionListener(e-> {
+            int row = table1.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Επίλεξε πρώτα προϊόν!");
+                return;
+            }
+            int id = (int) table1.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(this, "Να διαγραφεί το προϊόν;", "Διαγραφή", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                productService.deleteProduct(id);
+                refreshTable();
+            }
+
+        });
+        showAllButton.addActionListener(e-> {
+            refreshTable();
+        });
+
 
         setVisible(true);
+    }
+
+    private void refreshTable() {
+        DefaultTableModel model = (DefaultTableModel) table1.getModel();
+        model.setRowCount(0);
+        List<Product> products = productService.getAllProducts();
+        for (Product p : products) {
+            model.addRow(new Object[]{
+                    p.getId(), p.getName(), p.getSellPrice(), p.getPurchasePrice(), p.getStock(), p.getCategory()
+            });
+        }
     }
 
 

@@ -3,6 +3,7 @@ package Services;
 import Entities.Product;
 import DAO.ProductDAO;
 
+import java.util.List;
 
 
 public class ProductService {
@@ -27,7 +28,31 @@ public class ProductService {
         }
     }
 
+    public boolean updateProduct(Product updatedProduct) {
+        boolean success = productDAO.updateProduct(updatedProduct);
+        if (!success) {
+            throw new RuntimeException("Product update failed on level DAO.");
+        }
+        return true;
+    }
 
+    public boolean deleteProduct(int productId) {
+        boolean success = productDAO.deleteProduct(productId);
+        if (!success) {
+            throw new RuntimeException("Product delete failed on level DAO.");
+        }
+        return true;
+    }
 
+    public List<Product> getAllProducts() {
+        return productDAO.getAllProducts();
+    }
 
+    public Product getProductById(int id){
+        return productDAO.getProductById(id);
+    }
+
+    public Product findByName(String name) {
+        return productDAO.findByName(name);
+    }
 }

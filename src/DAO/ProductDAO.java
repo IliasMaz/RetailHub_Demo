@@ -115,7 +115,7 @@ public class ProductDAO {
         return null;
     }
 
-    public List<Product> getAllproducts(){
+    public List<Product> getAllProducts(){
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM Products";
 
@@ -139,6 +139,32 @@ public class ProductDAO {
 
         }
         return products; // Επιστροφή της λίστας (μπορεί να είναι κενή)
+    }
+
+    public Product getProductById(int id){
+        String sql = "SELECT * FROM Products WHERE id = ?";
+
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                Product product = new Product();
+                product.setId(rs.getInt("id"));
+                product.setName(rs.getString("name"));
+                product.setSellPrice(rs.getDouble("sellPrice"));
+                product.setPurchasePrice(rs.getDouble("purchasePrice"));
+                product.setStock(rs.getInt("stock"));
+                product.setCategory(rs.getString("category"));
+                return product;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching product by id: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

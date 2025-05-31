@@ -35,14 +35,17 @@ public class CreateProduct extends JDialog {
                 JOptionPane.showMessageDialog(this, "Please fill all the necessary fields!");
                 return;
             }
-            //O PAVLOS PROTEINEI TIN XRISI WHILE EDW
-            //TODO: MORE VALIDATION CHECKS
 
             try {
 
                 double sellPrice = Double.parseDouble(sellPriceTxt);
                 double purchasePrice = Double.parseDouble(purchasePriceTxt);
                 int stock = Integer.parseInt(stockTxt);
+
+                if (sellPrice < 0 || purchasePrice < 0 || stock < 0) {
+                    JOptionPane.showMessageDialog(this, "Prices and stock must be non-negative numbers!");
+                    return;
+                }
 
                 product = new Product(name, sellPrice, purchasePrice, stock, category);
                 saved = true;

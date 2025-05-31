@@ -87,7 +87,7 @@ public class ProductDAO {
         }
         return false;
     }
-
+    // TODO ΘΑ ΜΠΡΟΥΣΑΜΕ ΝΑ ΚΑΝΟΥΜΕ ΤΟ QUERY ΝΑ ΕΜΦΑΝΙΖΕΙ ΛΙΣΤΑ ΠΡΟΙΟΝΤΩΝ ΠΟΥ ΜΟΙΖΟΥΝ ΜΕ ΤΟ TEXT ΣΤΟ TEXT FIELD! <3
     public Product findByName(String name) {
         String sql = "SELECT * FROM Products WHERE name = ?";
 

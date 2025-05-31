@@ -45,7 +45,8 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
-        return productDAO.getAllProducts();
+        List<Product> products = productDAO.getAllProducts();
+        return products;
     }
 
     public Product getProductById(int id){

@@ -92,6 +92,7 @@
         </constraints>
         <properties>
           <enabled value="true"/>
+          <font style="1"/>
           <text value="Product Menu"/>
         </properties>
       </component>

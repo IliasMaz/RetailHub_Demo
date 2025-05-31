@@ -4,6 +4,8 @@ import Connector.SQLiteConnector;
 import Entities.Product;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductDAO {
 
@@ -112,4 +114,32 @@ public class ProductDAO {
         }
         return null;
     }
+
+    public List<Product> getAllproducts(){
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM Products";
+
+        try (Connection conn = SQLiteConnector.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Product product = new Product();
+                product.setId(rs.getInt("id"));
+                product.setName(rs.getString("name"));
+                product.setSellPrice(rs.getDouble("sellPrice"));
+                product.setPurchasePrice(rs.getDouble("purchasePrice"));
+                product.setStock(rs.getInt("stock"));
+                product.setCategory(rs.getString("category"));
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching all products: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return products; // Επιστροφή της λίστας (μπορεί να είναι κενή)
+    }
+
+
 }

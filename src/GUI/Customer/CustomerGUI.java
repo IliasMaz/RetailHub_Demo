@@ -23,7 +23,7 @@ public class CustomerGUI extends JFrame {
 
         setTitle("RetailHub - Customer Menu");
         setContentPane(panel1);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
 

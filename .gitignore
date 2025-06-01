@@ -27,9 +27,10 @@ bin/
 ### VS Code ###
 .vscode/
 
-### Mac OS ###
+### Mac OS / General OS files ###
 .DS_Store
 Thumbs.db
+desktop.ini
 
 ### Database Files ###
 /RetailHub.db

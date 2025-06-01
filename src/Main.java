@@ -1,7 +1,9 @@
 import Connector.SQLiteConnector;
 import DAO.CustomerDAO;
 import DAO.ProductDAO;
-import GUI.MainMenu.MainMenu;
+import GUI.Customer.CustomerGUI;
+import GUI.Product.ProductGUI;
+import GUI.LogIn.LogIn;
 import Services.CustomerService;
 import Services.ProductService;
 
@@ -9,10 +11,8 @@ import Services.ProductService;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-
         SQLiteConnector.initializeDatabase();
 
-        /**
         ProductDAO productDAO = new ProductDAO();
         ProductService productService = new ProductService(productDAO);
         new ProductGUI(productService);
@@ -20,14 +20,8 @@ public class Main {
         CustomerDAO customerDAO = new CustomerDAO();
         CustomerService customerService = new CustomerService(customerDAO);
         new CustomerGUI(customerService);
-         **/
 
-        ProductDAO productDAO = new ProductDAO();
-        ProductService productService = new ProductService(productDAO);
-        CustomerDAO customerDAO = new CustomerDAO();
-        CustomerService customerService = new CustomerService(customerDAO);
-        MainMenu menu1 = new MainMenu(productService, customerService);
-
+        LogIn login = new LogIn();
 
 
 

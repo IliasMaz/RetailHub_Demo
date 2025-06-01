@@ -16,17 +16,17 @@ public class CustomerService {
         this.customerDAO = customerDAO;
     }
 
-    public Customer createCustomer(String name, String email, String phone, String gender, int age ) {
+    public Customer createCustomer(String name, String email, String phone, String gender, int age) {
 
         Customer c = new Customer (name, email, phone, gender, age);
         boolean success = this.customerDAO.createCustomer(c);
         if (success) {
             System.out.println("CustomerService: Customer  " + c.getName() + " created with ID: " + c.getId());
             return c;
-        } else {
+        }
+        else {
             throw new RuntimeException("Customer creation failed on level DAO.");
         }
-
     }
 
     public boolean updateCustomer(Customer updatedCustomer) {

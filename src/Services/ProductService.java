@@ -23,7 +23,8 @@ public class ProductService {
         if (success) {
             System.out.println("ProductService: Product  " + p.getName() + " created with ID: " + p.getId());
             return p;
-        } else {
+        }
+        else {
             throw new RuntimeException("Product creation failed on level DAO.");
         }
     }

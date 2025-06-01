@@ -23,7 +23,7 @@ public class ProductGUI  extends JFrame{
 
         setTitle("RetailHub - Product Menu");
         setContentPane(panel1);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
 

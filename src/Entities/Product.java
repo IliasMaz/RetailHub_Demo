@@ -84,4 +84,13 @@ public class Product {
                 '}';
     }
 
+    //increase the stock of product
+    public void increaseStock(int quantity) {
+        this.stock += quantity;
+    }
+
+    // Decrease the stock of the product
+    public void decreaseStock(int quantity) {
+        this.stock -= quantity;
+    }
 }

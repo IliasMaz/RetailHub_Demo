@@ -10,8 +10,9 @@ public class Customer {
     private String phone;
     private String gender;
     private int age;
-    //private int loyaltyPoints;
+    private int loyaltyPoints;
     //private ArrayList<Sales> salesHistory = new ArrayList<Sales>();
+
 
 
     public Customer( String name, String email, String phone, String gender,  int age) {
@@ -20,11 +21,10 @@ public class Customer {
         this.phone = phone;
         this.gender = gender;
         this.age = age;
-        //this.loyaltyPoints = loyaltyPoints;
+        this.loyaltyPoints = 0;
     }
-//TODO - MIPWS TA LOYALTY POINTS NA GINOUN KLASI KAI OXI PEDIO AFTI TIN FORA?
 
-    public Customer() {}
+    public Customer() {this.loyaltyPoints = 0;}
 
     public int getId() {
         return id;
@@ -74,7 +74,6 @@ public class Customer {
         this.age = age;
     }
 
-    /**
     public int getLoyaltyPoints() {
         return loyaltyPoints;
     }
@@ -82,7 +81,6 @@ public class Customer {
     public void setLoyaltyPoints(int loyaltyPoints) {
         this.loyaltyPoints = loyaltyPoints;
     }
-     **/
 
     /**
     public ArrayList<Sales> getSalesHistory(){
@@ -99,7 +97,7 @@ public class Customer {
                 ", phone = '" + phone + '\'' +
                 ", gender = '" + gender + '\'' +
                 ", age = " + age +
-                //", loyaltyPoints = " + loyaltyPoints +
+                ", loyaltyPoints = " + loyaltyPoints +
                 '}';
     }
 }

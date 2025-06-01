@@ -18,7 +18,7 @@ public class Main {
 
         CustomerDAO customerDAO = new CustomerDAO();
         CustomerService customerService = new CustomerService(customerDAO);
-        new CustomerGUI();
+        new CustomerGUI(customerService);
 
 
 

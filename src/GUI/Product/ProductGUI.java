@@ -56,7 +56,7 @@ public class ProductGUI  extends JFrame{
         updateButton.addActionListener(e-> {
             int row = table1.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Επίλεξε πρώτα προϊόν!");
+                JOptionPane.showMessageDialog(this, "Choose product first!");
                 return;
             }
             int id = (int) table1.getValueAt(row, 0);
@@ -76,11 +76,11 @@ public class ProductGUI  extends JFrame{
         deleteButton.addActionListener(e-> {
             int row = table1.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Επίλεξε πρώτα προϊόν!");
+                JOptionPane.showMessageDialog(this, "Choose product first!");
                 return;
             }
             int id = (int) table1.getValueAt(row, 0);
-            int confirm = JOptionPane.showConfirmDialog(this, "Να διαγραφεί το προϊόν;", "Διαγραφή", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(this, "Delete product?", "Deletion", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 productService.deleteProduct(id);
                 refreshTable();

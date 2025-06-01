@@ -33,7 +33,7 @@
           <text value="Age"/>
         </properties>
       </component>
-      <component id="e319f" class="javax.swing.JTextField" binding="textField6" default-binding="true">
+      <component id="e319f" class="javax.swing.JTextField" binding="ageField">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -57,7 +57,7 @@
           <text value="Name"/>
         </properties>
       </component>
-      <component id="cfcc" class="javax.swing.JTextField" binding="textField7" default-binding="true">
+      <component id="cfcc" class="javax.swing.JTextField" binding="emailField">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -73,7 +73,7 @@
           <text value="Email"/>
         </properties>
       </component>
-      <component id="f3954" class="javax.swing.JTextField" binding="textField8" default-binding="true">
+      <component id="f3954" class="javax.swing.JTextField" binding="phoneField">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -89,7 +89,7 @@
           <text value="Phone"/>
         </properties>
       </component>
-      <component id="ed52b" class="javax.swing.JComboBox" binding="comboBox1" default-binding="true">
+      <component id="ed52b" class="javax.swing.JComboBox" binding="genderComboBox">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -108,23 +108,25 @@
             <preferred-size width="0" height="0"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <enabled value="true"/>
+        </properties>
         <border type="none"/>
         <children>
-          <component id="e8048" class="javax.swing.JButton" binding="button1" default-binding="true">
+          <component id="e8048" class="javax.swing.JButton" binding="saveButton" default-binding="true">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Button"/>
+              <text value="Save"/>
             </properties>
           </component>
-          <component id="544a3" class="javax.swing.JButton" binding="button2" default-binding="true">
+          <component id="544a3" class="javax.swing.JButton" binding="cancelButton" default-binding="true">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Button"/>
+              <text value="Cancel"/>
             </properties>
           </component>
         </children>

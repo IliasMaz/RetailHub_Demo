@@ -13,7 +13,7 @@ public class CustomerDAO {
 
     public boolean createCustomer(Customer customer) {
 
-        String sql = "INSERT INTO Customers (name, email, phone, gender, age) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Customers (name, email, phone, gender, age, loyaltyPoints) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = SQLiteConnector.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
@@ -22,6 +22,7 @@ public class CustomerDAO {
             statement.setString(3, customer.getPhone());
             statement.setString(4, customer.getGender());
             statement.setInt(5, customer.getAge());
+            statement.setInt(6, customer.getLoyaltyPoints());
 
             int rowsInserted = statement.executeUpdate();
 
@@ -44,7 +45,7 @@ public class CustomerDAO {
 
     public boolean updateCustomer(Customer customer) {
 
-        String sql = "UPDATE Customers SET name = ?, email = ?, phone = ?, gender = ?, age = ? WHERE id = ?";
+        String sql = "UPDATE Customers SET name = ?, email = ?, phone = ?, gender = ?, age = ?, loyaltyPoints = ? WHERE id = ?";
 
         try (Connection conn = SQLiteConnector.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -54,7 +55,8 @@ public class CustomerDAO {
             statement.setString(3, customer.getPhone());
             statement.setString(4, customer.getGender());
             statement.setInt(5, customer.getAge());
-            statement.setInt(6, customer.getId());
+            statement.setInt(6, customer.getLoyaltyPoints());
+            statement.setInt(7, customer.getId());
             int rowsUpdated = statement.executeUpdate();
 
             if (rowsUpdated > 0) {
@@ -108,6 +110,7 @@ public class CustomerDAO {
                 customer.setPhone(rs.getString("phone"));
                 customer.setGender(rs.getString("gender"));
                 customer.setAge(rs.getInt("age"));
+                customer.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
 
                 return customer;
             }
@@ -135,6 +138,7 @@ public class CustomerDAO {
                 customer.setPhone(rs.getString("phone"));
                 customer.setGender(rs.getString("gender"));
                 customer.setAge(rs.getInt("age"));
+                customer.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
 
                 return customer;
             }
@@ -160,6 +164,7 @@ public class CustomerDAO {
                 customer.setPhone(rs.getString("phone"));
                 customer.setGender(rs.getString("gender"));
                 customer.setAge(rs.getInt("age"));
+                customer.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
                 customers.add(customer);
             }
 
@@ -190,6 +195,7 @@ public class CustomerDAO {
                 customer.setPhone(rs.getString("phone"));
                 customer.setGender(rs.getString("gender"));
                 customer.setAge(rs.getInt("age"));
+                customer.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
 
                 customers.add(customer);
 
@@ -201,4 +207,36 @@ public class CustomerDAO {
         }
         return customers;
 
-    }}
+    }
+
+    public boolean addPoints(int customerId, int points) {
+        String sql = "UPDATE Customers SET loyaltyPoints = loyaltyPoints + ? WHERE id = ?";
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, points);
+            statement.setInt(2, customerId);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean subtractPoints(int customerId, int points) {
+        String sql = "UPDATE Customers SET loyaltyPoints = loyaltyPoints - ? WHERE id = ?";
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, points);
+            statement.setInt(2, customerId);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+
+
+
+}

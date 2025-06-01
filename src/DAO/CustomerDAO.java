@@ -235,8 +235,34 @@ public class CustomerDAO {
         return false;
     }
 
+    public Customer getCustomerById(int id) {
+        String sql = "SELECT * FROM Customers WHERE id = ?";
 
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
 
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
 
+            if (rs.next()) {
+                Customer customer = new Customer();
+                customer.setId(rs.getInt("id"));
+                customer.setName(rs.getString("name"));
+                customer.setEmail(rs.getString("email"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setGender(rs.getString("gender"));
+                customer.setAge(rs.getInt("age"));
+                customer.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
 
+                return customer;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
+
+
+
+

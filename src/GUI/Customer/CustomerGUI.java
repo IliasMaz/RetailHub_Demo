@@ -59,19 +59,19 @@ public class CustomerGUI extends JFrame {
                 return;
             }
             int id = (int) table1.getValueAt(row, 0);
-            Customer customer = customerService.getAllCustomers().stream()
-                    .filter(c -> c.getId() == id).findFirst().orElse(null);
+            Customer customer = customerService.getCustomerById(id);
+                    //getAllCustomers().stream().filter(c -> c.getId() == id).findFirst().orElse(null);
 
-            if (customer != null) {
-                UpdateCustomer dialog = new UpdateCustomer(customer);
-                dialog.setVisible(true);
 
-                Customer updatedCustomer = dialog.getCustomer();
-                if (updatedCustomer != null) {
-                    customerService.updateCustomer(updatedCustomer);
-                    refreshTable();
-                }
+            UpdateCustomer dialog = new UpdateCustomer(customer);
+            dialog.setVisible(true);
+
+            Customer updatedCustomer = dialog.getCustomer();
+            if (updatedCustomer != null) {
+                customerService.updateCustomer(updatedCustomer);
+                refreshTable();
             }
+
         });
 
         deleteButton.addActionListener(e -> {

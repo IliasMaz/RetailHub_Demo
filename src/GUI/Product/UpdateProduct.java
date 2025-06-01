@@ -24,7 +24,6 @@ public class UpdateProduct extends JDialog {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // Προγεμίζεις τα πεδία με τις τιμές του προϊόντος
         nameField.setText(product.getName());
         sellPriceField.setText(String.valueOf(product.getSellPrice()));
         purchasePriceField.setText(String.valueOf(product.getPurchasePrice()));

@@ -57,6 +57,10 @@ public class CustomerService {
         return customerDAO.getCustomerByPhone(phone);
     }
 
+    public Customer getCustomerById(int id){
+        return customerDAO.getCustomerById(id);
+    }
+
     public boolean addLoyaltyPoints(int customerId, int points) {
         return customerDAO.addPoints(customerId, points);
     }

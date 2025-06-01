@@ -35,7 +35,8 @@ public class SQLiteConnector {
                     "email TEXT NOT NULL UNIQUE," +
                     "phone TEXT NOT NULL UNIQUE," +
                     "gender TEXT NOT NULL," +
-                    "age INTEGER NOT NULL" +
+                    "age INTEGER NOT NULL," +
+                    "loyaltyPoints INTEGER NOT NULL DEFAULT 0" +
                     ");";
             stmt.execute(sqlCustomers);
 

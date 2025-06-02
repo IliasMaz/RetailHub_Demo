@@ -10,7 +10,7 @@ import javax.swing.*;
 public class MainMenu extends JFrame {
     private JButton productsButton1;
     private JButton customersButton1;
-    private JPanel panel1;
+    private JPanel mainMenuPanel;
     private JLabel titleMenu;
     private JButton homeButton;
     private JButton helpButton;
@@ -26,7 +26,7 @@ public class MainMenu extends JFrame {
     public MainMenu(ProductService productService, CustomerService customerService){
 
 
-        setContentPane(panel1);
+        setContentPane(mainMenuPanel);
         setResizable(false);
         setSize(760,560);
         setLocationRelativeTo(null);

@@ -4,7 +4,7 @@ import javax.swing.*;
 
 
 public class LogIn extends JFrame {
-    private JPanel panel1;
+    private JPanel loginPanel;
     private JTextField usernameTextField;
     private JPasswordField passwordTextField;
     private JLabel passwordLabel;
@@ -27,7 +27,7 @@ public class LogIn extends JFrame {
     public LogIn(){
 
         setTitle("RetailHub - Login page");
-        setContentPane(panel1);
+        setContentPane(loginPanel);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
@@ -42,7 +42,11 @@ public class LogIn extends JFrame {
         setVisible(true);
 
     }
+    /*
+    private boolean isValidLogin(String username,String password){
 
+    }
+*/
 
 
 

@@ -4,6 +4,8 @@ package Entities;
 public class SaleItem {
 
 
+
+    private int id;
     private Product product; // The product being sold
     private int quantity; // Quantity of product sold
 
@@ -18,6 +20,8 @@ public class SaleItem {
         this.product = product;
         this.quantity = quantity;
     }
+
+    public SaleItem() {}
 
     //RETURN name of the sold product
 
@@ -37,6 +41,10 @@ public class SaleItem {
         return quantity;
     }
 
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     //calculate total amount of price * quantity
 
     public double getLineTotal() {
@@ -49,12 +57,24 @@ public class SaleItem {
         return this.product;
     }
 
+    public void setProduct(Product product) {
+        this.product = product;}
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "SaleItem{" +
-                "product=" + product +
+                "id=" + id +
+                ", product=" + (product != null ? product.getName() : "N/A") +
                 ", quantity=" + quantity +
-                ' ';
+                '}';
     }
 
 }

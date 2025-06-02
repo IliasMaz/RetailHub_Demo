@@ -40,18 +40,26 @@ public class SQLiteConnector {
                     ");";
             stmt.execute(sqlCustomers);
 
-            String sqlSales = "CREATE TABLE IF NOT EXISTS Sales (" +
+            String sqlSales = "CREATE TABLE IF NOT EXISTS GUI.Sales (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "date TEXT NOT NULL," +
                     "time TEXT NOT NULL," +
                     "totalAmount REAL NOT NULL," +
-                    "productId INTEGER NOT NULL," +
                     "PaymentMethod TEXT NOT NULL," +
-                    "customerId INTEGER NOT NULL," +
-                    "FOREIGN KEY(customerId) REFERENCES Customers(id)," +
-                    "FOREIGN KEY(productId) REFERENCES Products(id)" +
+                    "customerId INTEGER," +
+                    "FOREIGN KEY(customerId) REFERENCES Customers(id) ON DELETE SET NULL," +
                     ");";
             stmt.execute(sqlSales);
+
+            String sqlSaleItems = "CREATE TABLE IF NOT EXISTS SaleItems (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "salesId INTEGER NOT NULL," +
+                    "productId INTEGER NOT NULL," +
+                    "quantity INTEGER NOT NULL," +
+                    "FOREIGN KEY(productId) REFERENCES Products(id) ON DELETE RESTRICT," +
+                    "FOREIGN KEY(salesId) REFERENCES GUI.Sales(id) ON DELETE CASCADE" +
+                    ");";
+            stmt.execute(sqlSaleItems);
 
             System.out.println("Database initialized successfully: Tables created or already exist.");
 

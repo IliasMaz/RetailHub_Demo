@@ -1,6 +1,7 @@
 import Connector.SQLiteConnector;
 import DAO.CustomerDAO;
 import DAO.ProductDAO;
+import DAO.SaleItemDAO;
 import GUI.Customer.CustomerGUI;
 import GUI.MainMenu.MainMenu;
 import GUI.Product.ProductGUI;
@@ -18,6 +19,8 @@ public class Main {
 
         CustomerDAO customerDAO = new CustomerDAO();
         CustomerService customerService = new CustomerService(customerDAO);
+
+        SaleItemDAO saleItemDAO = new SaleItemDAO(productDAO);
 
 
         MainMenu menu = new MainMenu(productService,customerService);

@@ -9,10 +9,11 @@ public class CreateProduct extends JDialog {
     private JTextField nameField;
     private JTextField sellPriceField;
     private JTextField purchasePriceField;
-    private JTextField categoryField;
+    //private JTextField categoryField;
     private JTextField stockField;
     private JButton saveButton;
     private JButton cancelButton;
+    private JComboBox categoryComboBox1;
 
     private Product product = null;
     private boolean saved = false;
@@ -30,7 +31,7 @@ public class CreateProduct extends JDialog {
             String sellPriceTxt = sellPriceField.getText().trim();
             String purchasePriceTxt = purchasePriceField.getText().trim();
             String stockTxt = stockField.getText().trim();
-            String category = categoryField.getText().trim().toLowerCase();
+            String category = (String) categoryComboBox1.getSelectedItem();
 
             if (name.isEmpty() || purchasePriceTxt.isEmpty() || stockTxt.isEmpty() || sellPriceTxt.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please fill all the necessary fields!");

@@ -281,7 +281,7 @@
                     </constraints>
                     <properties>
                       <font size="24"/>
-                      <text value="Sales"/>
+                      <text value="GUI.Sales"/>
                     </properties>
                   </component>
                   <component id="a328f" class="javax.swing.JButton" binding="employeesButton1">

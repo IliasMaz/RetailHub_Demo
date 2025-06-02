@@ -11,7 +11,7 @@ public class Customer {
     private String gender;
     private int age;
     private int loyaltyPoints;
-    //private ArrayList<Sales> salesHistory = new ArrayList<Sales>();
+    //private ArrayList<GUI.Sales> salesHistory = new ArrayList<GUI.Sales>();
 
 
 
@@ -83,13 +83,12 @@ public class Customer {
     }
 
     /**
-    public ArrayList<Sales> getSalesHistory(){
+    public ArrayList<GUI.Sales> getSalesHistory(){
         return salesHistory;
     }
      **/
 
-    @Override
-    public String toString() {
+    public String toFullString() {
         return "Customer{" +
                 "Id = " + id +
                 ", name = '" + name + '\'' +
@@ -100,4 +99,7 @@ public class Customer {
                 ", loyaltyPoints = " + loyaltyPoints +
                 '}';
     }
+
+    @Override
+    public String toString() { return name; }
 }

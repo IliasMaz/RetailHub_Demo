@@ -72,8 +72,7 @@ public class Product {
         this.category = category;
     }
 
-    @Override
-    public String toString() {
+    public String toFullString() {
         return "Product{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
@@ -83,6 +82,9 @@ public class Product {
                 ", category='" + category + '\'' +
                 '}';
     }
+
+    @Override
+    public String toString() { return name; }
 
     //increase the stock of product
     public void increaseStock(int quantity) {

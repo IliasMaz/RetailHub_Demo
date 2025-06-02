@@ -19,6 +19,7 @@ public class Sales {
     private PaymentMethod paymentMethod; // Method of payment used
     private Customer customer; // customer who made the purchase
 
+
     public enum PaymentMethod {
         CASH,
         CREDIT_CARD,
@@ -27,28 +28,52 @@ public class Sales {
         MOBILE_PAY
     }
 
-    public Sales(Customer customer) {
+    public Sales(Customer customer, PaymentMethod paymentMethod) {
         this.customer = customer;
         this.items = new ArrayList<>();
         this.totalAmount = 0;
         this.date = LocalDate.now();
         this.time = LocalTime.now();
+        this.paymentMethod = paymentMethod;
+    }
+
+    public void sumTotal() {
+        double sum = 0;
+        for(SaleItem i:items) {
+            sum = sum + i.getLineTotal();
+        }
+        this.totalAmount = sum;
     }
 
     public void addItem(Product product, int quantity) {
         if (product == null || quantity <= 0) {
             throw new IllegalArgumentException("Invalid product or quantity");
         }
-            SaleItem newItem = new SaleItem(product, quantity);
-            this.items.add(newItem);
-            this.totalAmount += newItem.getLineTotal();
+        SaleItem newItem = new SaleItem(product, quantity);
+        if(product.getStock() < quantity){
+            throw new IllegalStateException("Insufficient stock for product.");
+        }
+        this.items.add(newItem);
+        sumTotal();
+        product.decreaseStock(quantity);
 
     }
 
     public void removeItem(SaleItem itemToRemove) {
         if (this.items.remove(itemToRemove)) {
-            this.totalAmount -= itemToRemove.getLineTotal();
+            sumTotal();
+            Product p = itemToRemove.getProduct();
+            int qnty = itemToRemove.getQuantity();
+            p.increaseStock(qnty);
         }
+    }
+
+    public int getId(){
+        return id;
+    }
+
+    public void setId(int id){
+        this.id = id;
     }
 
     public Customer getCustomer() {
@@ -67,9 +92,6 @@ public class Sales {
         return totalAmount;
     }
 
-    public double getTotalamount() {
-        return totalAmount;
-    }
 
     public void setTotalamount(double totalamount) {
         this.totalAmount = totalamount;
@@ -89,6 +111,42 @@ public class Sales {
 
     public void setTime(LocalTime time) {
         this.time = time;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void receipt() {
+
+        // At first we have the header
+
+        String receipt =
+                "=== RECEIPT ===\n"
+                        + "Sale ID: " + id + "\n"
+                        + "Date   : " + date + "\n"
+                        + "Time   : " + time + "\n"
+                        + "Items  : " + items;
+
+        // Add each product to the receipt
+
+        for (SaleItem i : items) {
+            receipt +=  "  - " + i.getName() + " x" + i.getQuantity() + " @ " + i.getPrice() + "\n";
+        }
+
+        // Payment method and total amount
+
+        receipt +=
+                "Payment: " + paymentMethod + "\n"
+                        + "-----------------\n"
+                        + "TOTAL  : " + totalAmount + "\n";
+
+        System.out.println(receipt);
+
     }
 
     //THA TO TESTAROUME LIGO MPOREI NA THELEI ALLH METHODO PRINT

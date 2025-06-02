@@ -40,6 +40,19 @@ public class SQLiteConnector {
                     ");";
             stmt.execute(sqlCustomers);
 
+            String sqlSales = "CREATE TABLE IF NOT EXISTS Sales (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "date TEXT NOT NULL," +
+                    "time TEXT NOT NULL," +
+                    "totalAmount REAL NOT NULL," +
+                    "productId INTEGER NOT NULL," +
+                    "PaymentMethod TEXT NOT NULL," +
+                    "customerId INTEGER NOT NULL," +
+                    "FOREIGN KEY(customerId) REFERENCES Customers(id)," +
+                    "FOREIGN KEY(productId) REFERENCES Products(id)" +
+                    ");";
+            stmt.execute(sqlSales);
+
             System.out.println("Database initialized successfully: Tables created or already exist.");
 
         } catch (SQLException e) {

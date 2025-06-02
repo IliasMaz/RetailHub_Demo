@@ -1,7 +1,8 @@
-/**
+
 package Entities;
 
 public class SaleItem {
+
 
     private Product product; // The product being sold
     private int quantity; // Quantity of product sold
@@ -10,6 +11,7 @@ public class SaleItem {
      * CONSTRUCTOR for SaleItem
      * @param product the product sold
      * @param quantity the quantity sold
+     */
 
     public SaleItem(Product product, int quantity) {
 
@@ -55,7 +57,5 @@ public class SaleItem {
                 ' ';
     }
 
-
 }
 
-*/

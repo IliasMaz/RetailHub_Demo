@@ -7,13 +7,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Sales {
 
-    private final LocalDate date = LocalDate.now(); // Date of sale
-    private final LocalTime time = LocalTime.now(); // Time of sale
-    private double totalamount; // Total amount of sale
-    private ArrayList<Product> productsToSell; //the list of sold products per sale
+    private int id;
+    private LocalDate date; // Date of sale
+    private LocalTime time; // Time of sale
+    private double totalAmount; // Total amount of sale
+    private List<SaleItem> items;
     private PaymentMethod paymentMethod; // Method of payment used
     private Customer customer; // customer who made the purchase
 
@@ -27,18 +29,25 @@ public class Sales {
 
     public Sales(Customer customer) {
         this.customer = customer;
-        this.productsToSell = new ArrayList<>();
-        this.totalamount = 0;
+        this.items = new ArrayList<>();
+        this.totalAmount = 0;
+        this.date = LocalDate.now();
+        this.time = LocalTime.now();
     }
 
-    public void addProduct(Product product) {
-        this.productsToSell.add(product);
-        this.totalamount += product.getSellPrice();
+    public void addItem(Product product, int quantity) {
+        if (product == null || quantity <= 0) {
+            throw new IllegalArgumentException("Invalid product or quantity");
+        }
+            SaleItem newItem = new SaleItem(product, quantity);
+            this.items.add(newItem);
+            this.totalAmount += newItem.getLineTotal();
+
     }
 
-    public void removeProduct(Product product) {
-        if (this.productsToSell.remove(product)) {
-            this.totalamount -= product.getSellPrice();
+    public void removeItem(SaleItem itemToRemove) {
+        if (this.items.remove(itemToRemove)) {
+            this.totalAmount -= itemToRemove.getLineTotal();
         }
     }
 
@@ -50,37 +59,61 @@ public class Sales {
         this.customer = customer;
     }
 
-    public ArrayList<Product> getProductsToSell() {
-        return productsToSell;
+    public List<SaleItem> getItems() {
+        return items;
     }
 
     public double getTotalAmount() {
-        return totalamount;
+        return totalAmount;
     }
 
     public double getTotalamount() {
-        return totalamount;
+        return totalAmount;
     }
 
     public void setTotalamount(double totalamount) {
-        this.totalamount = totalamount;
+        this.totalAmount = totalamount;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
     public LocalTime getTime() {
         return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     //THA TO TESTAROUME LIGO MPOREI NA THELEI ALLH METHODO PRINT
     @Override
     public String toString() {
         return "Customer: " + customer.getName() + " ID: " + customer.getId() + " Products: "
-                + Arrays.toString(productsToSell.toArray())
-                + " Total amount: " + totalamount
+                + Arrays.toString(items.toArray())
+                + " Total amount: " + totalAmount
                 + " Date: " + getDate().toString() + " Time: " + time;
     }
+    /*   DEITE AFTIN TIN METHODO GIA PRINT
+    @Override
+    public String toString() {
+        StringBuilder productDetails = new StringBuilder();
+        for (SaleItem item : items) {
+            productDetails.append("\n\t- ").append(item.getName()).append(" (Qty: ").append(item.getQuantity()).append(", Price: ").append(item.getPrice()).append(")");
+        }
 
+        return "Sale ID: " + id +
+               "\nCustomer: " + (customer != null ? customer.getName() : "N/A") +
+               "\nDate: " + date + " " + time +
+               "\nItems: " + (items.isEmpty() ? "None" : productDetails.toString()) +
+               "\nTotal Amount: " + String.format("%.2f", totalAmount) +
+               "\nPayment Method: " + paymentMethod;
+    }
+     */
 }
+

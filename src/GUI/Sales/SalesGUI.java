@@ -3,6 +3,7 @@ package GUI.Sales;
 import Entities.Sales;
 import Services.CustomerService;
 import Services.ProductService;
+import Services.SalesService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -29,7 +30,7 @@ public class SalesGUI extends JFrame {
         this.custService = custService;
         this.prodService = prodService;
 
-        setTitle("RetailHub - GUI.Sales Menu");
+        setTitle("RetailHub - Sales Menu");
         setContentPane(panel1);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         pack();
@@ -45,9 +46,9 @@ public class SalesGUI extends JFrame {
         createButton.addActionListener(e -> {
             CreateSale dialog = new CreateSale(custService, prodService);
             dialog.setVisible(true);
-            Sales newSale = dialog.getSale();
-            if (newSale != null) {
-                salesService.createSale(newSale);
+            Sales saleCompleted = dialog.getSale();
+            if (saleCompleted != null) {
+                salesService.finalizeAndSaveSale(saleCompleted);
                 refreshTable();
             }
         });
@@ -60,11 +61,11 @@ public class SalesGUI extends JFrame {
             }
             int id = (int) table1.getValueAt(row, 0);
             Sales sale = salesService.getSaleById(id);
-            UpdateSale dialog = new UpdateSale(sale, customerService, productService);
+            UpdateSale dialog = new UpdateSale(sale, custService, prodService);
             dialog.setVisible(true);
             Sales updatedSale = dialog.getSale();
             if (updatedSale != null) {
-                salesService.updateSale(updatedSale);
+                //salesService.updateSale(updatedSale);
                 refreshTable();
             }
         });
@@ -88,16 +89,25 @@ public class SalesGUI extends JFrame {
         searchButton.addActionListener(e -> {
             DefaultTableModel model = (DefaultTableModel) table1.getModel();
             model.setRowCount(0);
-            String text = searchTextField.getText().trim();
-            if (!text.isEmpty()) {
-                Sales sale = salesService.findByCustomerName(text);
-                if (sale != null) {
-                    model.addRow(new Object[]{
-                            sale.getId(), sale.getCustomer().getName(), sale.getDate(), sale.getTime(), sale.getTotalAmount(), sale.getPaymentMethod()
-                    });
-                }
+            String text = searchField.getText().trim();
+            int customerId = Integer.parseInt(text);
+            if (customerId <= 0) {
+                JOptionPane.showMessageDialog(this, "Customer ID must be a positive number.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        });
+            List<Sales> salesFound = salesService.findSalesByCustomer(customerId);
+            for (Sales sale : salesFound) {
+                model.addRow(new Object[]{
+                        sale.getId(),
+                        (sale.getCustomer() != null ? sale.getCustomer().getName() : "N/A"),
+                        sale.getDate(),
+                        sale.getTime(),
+                        sale.getTotalAmount(),
+                        sale.getPaymentMethod()
+                });
+                }
+            });
+
 
 
 

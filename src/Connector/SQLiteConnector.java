@@ -57,7 +57,7 @@ public class SQLiteConnector {
                     "productId INTEGER NOT NULL," +
                     "quantity INTEGER NOT NULL," +
                     "FOREIGN KEY(productId) REFERENCES Products(id) ON DELETE RESTRICT," +
-                    "FOREIGN KEY(salesId) REFERENCES GUI.Sales(id) ON DELETE CASCADE" +
+                    "FOREIGN KEY(salesId) REFERENCES Sales(id) ON DELETE CASCADE" +
                     ");";
             stmt.execute(sqlSaleItems);
 

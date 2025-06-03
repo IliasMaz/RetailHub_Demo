@@ -4,12 +4,14 @@ package Services;
 import DAO.ProductDAO;
 import DAO.SaleItemDAO;
 import DAO.SalesDAO;
+import Entities.Customer;
 import Entities.Product;
 import Entities.SaleItem;
 import Entities.Sales;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SalesService {
@@ -236,6 +238,18 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
     }
 
 
+    public List<Sales> findSalesByCustomer(int customerId) {
+        if (customerId <= 0) {
+            System.err.println("SalesService: Invalid Customer ID provided (" + customerId + ").");
+            return new ArrayList<>();
+        }
+        List<Sales> sales = salesDAO.getSalesByCustomerId(customerId);
+        if (sales.isEmpty()) {
+            System.out.println("SalesService: No sales found for customer ID: " + customerId);
+        }
+        return sales;
+    }
+
     public Sales getSaleById(int saleId) {
         if (saleId <= 0) {
             System.err.println("SalesService: Invalid Sale ID provided (" + saleId + ").");
@@ -290,42 +304,11 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
             throw new RuntimeException("Sale deletion failed at DAO level for ID: " + saleId);
         }
     }
-/*
-    public boolean updateSale(Sales updatedSale) {
-        if (updatedSale == null || updatedSale.getId() <= 0) {
-            throw new IllegalArgumentException("Sale to update cannot be null and must have a valid ID.");
-        }
 
-        // Εδώ θα έμπαινε πολύπλοκη λογική:
-        // 1. Έναρξη transaction στο SalesDAO (ή η μέθοδος updateSale του DAO θα το κάνει).
-        // 2. Φόρτωση της παλιάς κατάστασης της πώλησης από τη βάση για να δεις τις διαφορές στα SaleItems.
-        // 3. Ενημέρωση της κύριας εγγραφής Sales.
-        // 4. Διαγραφή SaleItems που αφαιρέθηκαν.
-        // 5. Ενημέρωση SaleItems που άλλαξαν (π.χ., ποσότητα).
-        // 6. Προσθήκη νέων SaleItems.
-        // 7. Επαναϋπολογισμός και ενημέρωση του αποθέματος για όλα τα επηρεαζόμενα προϊόντα.
-        // 8. Commit ή rollback.
 
-        // Προς το παρόν, μια απλοποιημένη προσέγγιση που ενημερώνει μόνο την κεφαλίδα της Sales
-        // και υποθέτει ότι τα items θα τα χειριστείς ξεχωριστά ή ότι η salesDAO.updateSale το κάνει.
-        // Μια ΠΟΛΥ απλοποιημένη εκδοχή που ΔΕΝ χειρίζεται σωστά τα items ή το stock:
-        //boolean success = salesDAO.updateSaleHeader(updatedSale); // Χρειάζεσαι μια τέτοια μέθοδο στο DAO
-        // που ενημερώνει μόνο τις στήλες του πίνακα Sales
-        // χωρίς να αγγίζει τα SaleItems ή το stock.
 
-        // Η ΠΛΗΡΗΣ `updateSale` στο DAO θα ήταν παρόμοια σε πολυπλοκότητα με την `finalizeSaleWithItems`.
-        // Θα χρειαζόταν να διαγράψει πρώτα όλα τα υπάρχοντα SaleItems για τη συγκεκριμένη πώληση,
-        // να επαναφέρει το stock, και μετά να προσθέσει τα νέα SaleItems και να μειώσει το stock ξανά.
-        // Αυτό είναι ΠΟΛΥ πιο σύνθετο.
 
-        if (success) {
-            System.out.println("SalesService: Sale with ID " + updatedSale.getId() + " header updated successfully.");
-            return true;
-        } else {
-            throw new RuntimeException("Sale header update failed at DAO level for ID: " + updatedSale.getId());
-        }
-    }
 
- */
+
 }
 

@@ -118,7 +118,6 @@ public class SalesDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, saleId);
             int affectedRows = pstmt.executeUpdate();
-            // Αν το ON DELETE CASCADE είναι ενεργό για τα SaleItems, θα διαγραφούν αυτόματα.
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("SalesDAO.deleteSale: Error - " + e.getMessage());
@@ -341,6 +340,86 @@ public class SalesDAO {
         return sale;
     }
 
+
+    public boolean updateSaleHeader(Sales sale) {
+        String sql = "UPDATE Sales SET customerId = ?, date = ?, time = ?, totalAmount = ?, paymentMethod = ? WHERE id = ?";
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            if (sale.getCustomer() != null) {
+                stmt.setInt(1, sale.getCustomer().getId());
+            } else {
+                stmt.setNull(1, Types.INTEGER);
+            }
+            stmt.setString(2, sale.getDate().toString());
+            stmt.setString(3, sale.getTime().toString());
+            stmt.setDouble(4, sale.getTotalAmount());
+            if (sale.getPaymentMethod() != null) {
+                stmt.setString(5, sale.getPaymentMethod().name());
+            } else {
+                stmt.setNull(5, Types.VARCHAR);
+            }
+            stmt.setInt(6, sale.getId());
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating sale header for ID " + sale.getId() + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<Sales> getSalesByCustomerId(int customerId) {
+        List<Sales> salesList = new ArrayList<>();
+        String sql = "SELECT id, customerId, date, time, totalAmount, paymentMethod FROM Sales WHERE customerId = ?";
+
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, customerId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int saleId = rs.getInt("id");
+                    int currentCustomerId = rs.getInt("customerId");
+                    String dateString = rs.getString("date");
+                    String timeString = rs.getString("time");
+                    double totalAmount = rs.getDouble("totalAmount");
+                    String paymentMethodString = rs.getString("PaymentMethod");
+
+                    Customer customer = null;
+                    if (!rs.wasNull() && currentCustomerId > 0) {
+                        customer = customerDAO.getCustomerById(currentCustomerId);
+                    }
+
+                    Sales.PaymentMethod paymentMethod = null;
+                    if (paymentMethodString != null) {
+                        try {
+                            paymentMethod = Sales.PaymentMethod.valueOf(paymentMethodString);
+                        } catch (IllegalArgumentException e) {
+                            System.err.println("Invalid payment method in DB for sale ID " + saleId + ": " + paymentMethodString);
+                        }
+                    }
+
+                    Sales sale = new Sales(customer, paymentMethod);
+                    sale.setId(saleId);
+                    if (dateString != null) sale.setDate(LocalDate.parse(dateString));
+                    if (timeString != null) sale.setTime(LocalTime.parse(timeString));
+                    sale.setTotalamount(totalAmount);
+
+                    List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
+                    if (sale.getItems() != null) {
+                        sale.getItems().clear();
+                        sale.getItems().addAll(itemsForThisSale);
+                    }
+
+                    salesList.add(sale);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting sales by customer ID (" + customerId + "): " + e.getMessage());
+            e.printStackTrace();
+        }
+        return salesList;
+    }
 
 
 

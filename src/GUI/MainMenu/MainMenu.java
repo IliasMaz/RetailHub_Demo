@@ -2,8 +2,10 @@ package GUI.MainMenu;
 
 import GUI.Customer.CustomerGUI;
 import GUI.Product.ProductGUI;
+import GUI.Sales.SalesGUI;
 import Services.CustomerService;
 import Services.ProductService;
+import Services.SalesService;
 
 import javax.swing.*;
 
@@ -21,9 +23,9 @@ public class MainMenu extends JFrame {
     private JLabel choose;
     private ProductService productService;
     private CustomerService customerService;
-    //private SalesService salesService;
+    private SalesService salesService;
 
-    public MainMenu(ProductService productService, CustomerService customerService){
+    public MainMenu(ProductService productService, CustomerService customerService, SalesService salesService){
 
 
         setContentPane(mainMenuPanel);
@@ -35,6 +37,7 @@ public class MainMenu extends JFrame {
 
         this.productService = productService;
         this.customerService = customerService;
+        this.salesService = salesService;
 
         productsButton1.addActionListener(e -> {
             new ProductGUI(productService);
@@ -44,11 +47,11 @@ public class MainMenu extends JFrame {
             new CustomerGUI(customerService);
         });
 
-        /**
-        salesButton.addActionListener(e->{
-            new SalesGUI(salesService);
+
+        salesButton1.addActionListener(e->{
+            new SalesGUI(salesService, customerService, productService);
         });
-         **/
+
         this.setVisible(true);
     }
 

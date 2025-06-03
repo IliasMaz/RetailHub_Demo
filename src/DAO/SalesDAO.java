@@ -14,13 +14,17 @@ import java.util.List;
 
 public class SalesDAO {
 
+    private CustomerDAO customerDAO;
     private SaleItemDAO saleItemDAO;
+    private ProductDAO productDAO;
 
-    public SalesDAO(SaleItemDAO saleItemDAO) {
-        if (saleItemDAO == null) {
-            throw new IllegalArgumentException("SaleItemDAO cannot be null for SalesDAO");
+    public SalesDAO(CustomerDAO customerDAO, SaleItemDAO saleItemDAO, ProductDAO productDAO) {
+        if (customerDAO == null || saleItemDAO == null || productDAO == null) {
+            throw new IllegalArgumentException("DAOs cannot be null for SalesDAO");
         }
+        this.customerDAO = customerDAO;
         this.saleItemDAO = saleItemDAO;
+        this.productDAO = productDAO;
     }
 
 
@@ -74,7 +78,7 @@ public class SalesDAO {
         return false;
     }
 
-    public boolean updateSaleRecord(Sales sale) {
+    public boolean updateSale(Sales sale) {
         if (sale == null || sale.getId() <= 0) {
             System.err.println("SalesDAO.updateSaleRecord: Invalid sale object or ID.");
             return false;
@@ -124,10 +128,9 @@ public class SalesDAO {
     }
 
     public boolean finalizeSaleWithItems(Sales saleToFinalize) {
-        // SQL για την ενημέρωση της κύριας εγγραφής Sales
+
         String sqlUpdateSale = "UPDATE Sales SET customerId = ?, date = ?, time = ?, totalAmount = ?, paymentMethod = ? WHERE id = ?";
-        String sqlInsertSaleItem = "INSERT INTO SaleItems (saleId, productId, quantity, unitPrice) VALUES (?, ?, ?, ?)";
-        // Υποθέτουμε ότι ο πίνακας SaleItems έχει στήλη unitPrice.
+        String sqlInsertSaleItem = "INSERT INTO SaleItems (saleId, productId, quantity) VALUES (?, ?, ?)";
 
         boolean overallSuccess = false;
 
@@ -137,10 +140,9 @@ public class SalesDAO {
         }
 
         try (Connection conn = SQLiteConnector.getConnection()) {
-            conn.setAutoCommit(false); // Έναρξη transaction
+            conn.setAutoCommit(false);
 
             try {
-                // Βήμα 1: Ενημέρωση της υπάρχουσας εγγραφής Sales
                 try (PreparedStatement stmtUpdateSale = conn.prepareStatement(sqlUpdateSale)) {
                     if (saleToFinalize.getCustomer() != null) {
                         stmtUpdateSale.setInt(1, saleToFinalize.getCustomer().getId());
@@ -149,25 +151,22 @@ public class SalesDAO {
                     }
                     stmtUpdateSale.setString(2, saleToFinalize.getDate().toString());
                     stmtUpdateSale.setString(3, saleToFinalize.getTime().toString());
-                    stmtUpdateSale.setDouble(4, saleToFinalize.getTotalAmount()); // Το τελικό totalAmount
+                    stmtUpdateSale.setDouble(4, saleToFinalize.getTotalAmount());
                     if (saleToFinalize.getPaymentMethod() != null) {
                         stmtUpdateSale.setString(5, saleToFinalize.getPaymentMethod().name());
                     } else {
-                        stmtUpdateSale.setNull(5, Types.VARCHAR); // Αν το PaymentMethod μπορεί να είναι NULL
+                        stmtUpdateSale.setNull(5, Types.VARCHAR);
                     }
-                    stmtUpdateSale.setInt(6, saleToFinalize.getId()); // Το ID της πώλησης που ενημερώνουμε
+                    stmtUpdateSale.setInt(6, saleToFinalize.getId());
 
                     int rowsUpdatedSale = stmtUpdateSale.executeUpdate();
                     if (rowsUpdatedSale == 0) {
-                        // Δεν βρέθηκε πώληση με αυτό το ID για ενημέρωση, πιθανόν σφάλμα.
+
                         throw new SQLException("Updating sale failed, no sale found with ID: " + saleToFinalize.getId());
                     }
-                } // Το stmtUpdateSale κλείνει
+                }
 
-                // Βήμα 2: Εισαγωγή των SaleItems
-                // (Υποθέτουμε ότι τυχόν παλιά SaleItems για αυτή την πώληση έχουν ήδη διαγραφεί
-                //  ή ότι η λογική του GUI/Service διασφαλίζει ότι προσθέτουμε μόνο νέα.
-                //  Μια πιο πλήρης update θα μπορούσε να διαγράφει τα παλιά items πρώτα.)
+
                 List<SaleItem> items = saleToFinalize.getItems();
                 if (items != null && !items.isEmpty()) {
                     for (SaleItem item : items) {
@@ -191,7 +190,7 @@ public class SalesDAO {
                             } else {
                                 throw new SQLException("Failed to insert sale item for product: " + item.getName());
                             }
-                        } // Το stmtItem κλείνει
+                        }
                     }
                 }
 
@@ -200,7 +199,6 @@ public class SalesDAO {
                     for (SaleItem item : items) {
                         Product product = item.getProduct();
                         int quantitySold = item.getQuantity();
-                        // Ιδανικά, αυτή η λογική θα ήταν σε μια μέθοδο productDAO.decreaseStock(product.getId(), quantitySold, conn)
                         String sqlUpdateStock = "UPDATE Products SET stock = stock - ? WHERE id = ?";
                         try (PreparedStatement stmtStock = conn.prepareStatement(sqlUpdateStock)) {
                             stmtStock.setInt(1, quantitySold);
@@ -209,11 +207,11 @@ public class SalesDAO {
                             if (stockRowsAffected == 0) {
                                 throw new SQLException("Failed to update stock for product: " + product.getName());
                             }
-                        } // Το stmtStock κλείνει
+                        }
                     }
                 }
 
-                conn.commit(); // Όλα πήγαν καλά, κάνε commit
+                conn.commit();
                 overallSuccess = true;
 
             } catch (SQLException e) {
@@ -237,28 +235,115 @@ public class SalesDAO {
 
 
     public List<Sales> getAllSales() {
-
         List<Sales> salesList = new ArrayList<>();
-        String sql = "SELECT * FROM Sales";
+        String sql = "SELECT id, customerId, date, time, totalAmount, paymentMethod FROM Sales";
 
         try (Connection conn = SQLiteConnector.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Sales sale = new Sales();
-                sale.setId(rs.getInt(id));
 
+
+                int saleId = rs.getInt("id");
+                int customerId = rs.getInt("customerId");
+                String dateString = rs.getString("date");
+                String timeString = rs.getString("time");
+                double totalAmount = rs.getDouble("totalAmount");
+                String paymentMethodString = rs.getString("PaymentMethod");
+
+                Customer customer = null;
+                if (!rs.wasNull()) {
+                    customer = customerDAO.getCustomerById(customerId);
+                }
+
+                Sales.PaymentMethod paymentMethod = null;
+                if (paymentMethodString != null) {
+                    try {
+                        paymentMethod = Sales.PaymentMethod.valueOf(paymentMethodString);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Invalid payment method in DB for sale ID " + saleId + ": " + paymentMethodString);
+                    }
+                }
+
+
+                Sales sale = new Sales(customer, paymentMethod);
+                sale.setId(saleId);
+
+
+                if (dateString != null) sale.setDate(LocalDate.parse(dateString));
+                if (timeString != null) sale.setTime(LocalTime.parse(timeString));
+                sale.setTotalamount(totalAmount);
+
+                List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
+
+                if (sale.getItems() != null) {
+                    sale.getItems().clear();
+                    sale.getItems().addAll(itemsForThisSale);
+                }
+                salesList.add(sale);
             }
-
-
-
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Error getting all sales: " + e.getMessage());
             e.printStackTrace();
         }
         return salesList;
     }
+
+    public Sales getSaleById(int saleId) {
+        Sales sale = null;
+        String sql = "SELECT id, customerId, date, time, totalAmount, PaymentMethod FROM Sales WHERE id = ?";
+
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, saleId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int customerId = rs.getInt("customerId");
+                    String dateString = rs.getString("date");
+                    String timeString = rs.getString("time");
+                    double totalAmount = rs.getDouble("totalAmount");
+                    String paymentMethodString = rs.getString("PaymentMethod");
+
+                    Customer customer = null;
+                    if (!rs.wasNull()) {
+                        customer = customerDAO.getCustomerById(customerId);
+                    }
+
+                    Sales.PaymentMethod paymentMethod = null;
+                    if (paymentMethodString != null) {
+                        try {
+                            paymentMethod = Sales.PaymentMethod.valueOf(paymentMethodString);
+                        } catch (IllegalArgumentException e) {
+                            System.err.println("Invalid payment method in DB for sale ID " + saleId + ": " + paymentMethodString);
+                        }
+                    }
+
+                    sale = new Sales(customer, paymentMethod);
+                    sale.setId(rs.getInt("id"));
+
+                    if (dateString != null) sale.setDate(LocalDate.parse(dateString));
+                    if (timeString != null) sale.setTime(LocalTime.parse(timeString));
+                    sale.setTotalamount(totalAmount);
+
+                    List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
+                    if (sale.getItems() != null) {
+                        sale.getItems().clear();
+                        sale.getItems().addAll(itemsForThisSale);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting sale by ID ("+ saleId +"): " + e.getMessage());
+            e.printStackTrace();
+        }
+        return sale;
+    }
+
+
+
+
 }
 
 

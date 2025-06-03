@@ -23,7 +23,6 @@ public class Sales {
 
 
 
-
     public enum PaymentMethod {
         NUll,
         CASH,
@@ -94,6 +93,10 @@ public class Sales {
 
     public List<SaleItem> getItems() {
         return items;
+    }
+
+    public void setItems(List<SaleItem> items) {
+        this.items = items;
     }
 
     public double getTotalAmount() {

@@ -4,7 +4,6 @@ package Services;
 import DAO.ProductDAO;
 import DAO.SaleItemDAO;
 import DAO.SalesDAO;
-import Entities.Customer;
 import Entities.Product;
 import Entities.SaleItem;
 import Entities.Sales;
@@ -64,11 +63,9 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
     try {
         currentSale.addItem(product, quantity);
 
-        // Εύρεση του item που μόλις προστέθηκε (υποθέτοντας ότι προστίθεται στο τέλος)
         if (currentSale.getItems().size() > itemCount) {
             newItem = currentSale.getItems().get(currentSale.getItems().size() - 1);
         } else {
-            // Δεν θα έπρεπε να συμβεί αν η currentSale.addItem δούλεψε σωστά και δεν πέταξε exception
             throw new RuntimeException("Item was not added to in-memory sale list by currentSale.addItem().");
         }
 
@@ -97,7 +94,7 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
         System.out.println("SalesService: Item " + product.getName() + " (SaleItem ID: " + saleItemIdFromDB + ") added to sale ID " + currentSale.getId() + " and DB updated. Current total: " + currentSale.getTotalAmount());
         return currentSale;
 
-    } catch (IllegalStateException | IllegalArgumentException e) { // Από currentSale.addItem ή τους δικούς μας ελέγχους
+    } catch (IllegalStateException | IllegalArgumentException e) {
         System.err.println("SalesService: Could not add item - " + e.getMessage());
         throw e;
     }
@@ -176,7 +173,7 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
         saleToSave.setTime(LocalTime.now());
         saleToSave.sumTotal();
 
-        if (salesDAO.updateSaleRecord(saleToSave)) {
+        if (salesDAO.updateSale(saleToSave)) {
             System.out.println("SalesService: Sale ID " + saleToSave.getId() + " finalized and saved successfully.");
             return saleToSave;
         } else {
@@ -237,5 +234,98 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
         // saleToCancel.setId(0); // Ίσως θέλεις να μηδενίσεις και το ID για να δείξεις ότι δεν είναι πλέον έγκυρη πώληση
         System.out.println("SalesService: Sale ID " + saleToCancel.getId() + " has been cancelled. In-memory object cleared.");
     }
+
+
+    public Sales getSaleById(int saleId) {
+        if (saleId <= 0) {
+            System.err.println("SalesService: Invalid Sale ID provided (" + saleId + ").");
+            return null;
+        }
+        Sales sale = salesDAO.getSaleById(saleId);
+        if (sale == null) {
+            System.out.println("SalesService: No sale found with ID: " + saleId);
+        }
+        return sale;
+    }
+
+    public List<Sales> getAllSales() {
+        List<Sales> sales = salesDAO.getAllSales();
+        if (sales.isEmpty()) {
+            System.out.println("SalesService: No sales found in the database.");
+        }
+        return sales;
+    }
+
+    public boolean deleteSale(int saleId) {
+        if (saleId <= 0) {
+            System.err.println("SalesService: Invalid Sale ID for deletion (" + saleId + ").");
+            return false;
+        }
+
+        // Προαιρετικά: Αν θέλεις να επαναφέρεις το stock, πρέπει να φορτώσεις την πώληση
+        // και τα είδη της ΠΡΙΝ τη διαγράψεις.
+        /*
+        Sales saleToDelete = salesDAO.getSaleById(saleId);
+        if (saleToDelete != null && saleToDelete.getItems() != null) {
+            for (SaleItem item : saleToDelete.getItems()) {
+                if (item.getProduct() != null) {
+                    // Εδώ θα καλούσες μια μέθοδο του ProductDAO για αύξηση του αποθέματος στη ΒΑΣΗ
+                    // productDAO.increaseStockInDB(item.getProduct().getId(), item.getQuantity());
+                    // Αυτό απαιτεί η productDAO.increaseStockInDB να είναι μέρος μιας transaction
+                    // ή να εκτελεστεί πριν το salesDAO.deleteSale.
+                    System.out.println("SalesService (Before Deletion): Stock for product " + item.getProduct().getName() + " would be restored by " + item.getQuantity());
+                }
+            }
+        } else if (saleToDelete == null) {
+             System.err.println("SalesService: Sale with ID " + saleId + " not found for deletion or stock restoration.");
+            return false; // Η πώληση δεν βρέθηκε καν
+        }
+        */
+
+        boolean success = salesDAO.deleteSale(saleId); // Υποθέτοντας ότι έχεις μια deleteSale(int id) στο SalesDAO
+        if (success) {
+            System.out.println("SalesService: Sale with ID " + saleId + " deleted successfully.");
+            return true;
+        } else {
+            throw new RuntimeException("Sale deletion failed at DAO level for ID: " + saleId);
+        }
+    }
+/*
+    public boolean updateSale(Sales updatedSale) {
+        if (updatedSale == null || updatedSale.getId() <= 0) {
+            throw new IllegalArgumentException("Sale to update cannot be null and must have a valid ID.");
+        }
+
+        // Εδώ θα έμπαινε πολύπλοκη λογική:
+        // 1. Έναρξη transaction στο SalesDAO (ή η μέθοδος updateSale του DAO θα το κάνει).
+        // 2. Φόρτωση της παλιάς κατάστασης της πώλησης από τη βάση για να δεις τις διαφορές στα SaleItems.
+        // 3. Ενημέρωση της κύριας εγγραφής Sales.
+        // 4. Διαγραφή SaleItems που αφαιρέθηκαν.
+        // 5. Ενημέρωση SaleItems που άλλαξαν (π.χ., ποσότητα).
+        // 6. Προσθήκη νέων SaleItems.
+        // 7. Επαναϋπολογισμός και ενημέρωση του αποθέματος για όλα τα επηρεαζόμενα προϊόντα.
+        // 8. Commit ή rollback.
+
+        // Προς το παρόν, μια απλοποιημένη προσέγγιση που ενημερώνει μόνο την κεφαλίδα της Sales
+        // και υποθέτει ότι τα items θα τα χειριστείς ξεχωριστά ή ότι η salesDAO.updateSale το κάνει.
+        // Μια ΠΟΛΥ απλοποιημένη εκδοχή που ΔΕΝ χειρίζεται σωστά τα items ή το stock:
+        //boolean success = salesDAO.updateSaleHeader(updatedSale); // Χρειάζεσαι μια τέτοια μέθοδο στο DAO
+        // που ενημερώνει μόνο τις στήλες του πίνακα Sales
+        // χωρίς να αγγίζει τα SaleItems ή το stock.
+
+        // Η ΠΛΗΡΗΣ `updateSale` στο DAO θα ήταν παρόμοια σε πολυπλοκότητα με την `finalizeSaleWithItems`.
+        // Θα χρειαζόταν να διαγράψει πρώτα όλα τα υπάρχοντα SaleItems για τη συγκεκριμένη πώληση,
+        // να επαναφέρει το stock, και μετά να προσθέσει τα νέα SaleItems και να μειώσει το stock ξανά.
+        // Αυτό είναι ΠΟΛΥ πιο σύνθετο.
+
+        if (success) {
+            System.out.println("SalesService: Sale with ID " + updatedSale.getId() + " header updated successfully.");
+            return true;
+        } else {
+            throw new RuntimeException("Sale header update failed at DAO level for ID: " + updatedSale.getId());
+        }
+    }
+
+ */
 }
 

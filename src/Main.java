@@ -28,7 +28,7 @@ public class Main {
 
 
 
-        MainMenu menu = new MainMenu(productService,customerService, salesService);
+        //MainMenu menu = new MainMenu(productService,customerService, salesService);
 
         LogIn login = new LogIn();
 

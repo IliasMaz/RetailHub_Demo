@@ -1,6 +1,17 @@
 package GUI.LogIn;
 
+import DAO.CustomerDAO;
+import DAO.ProductDAO;
+import DAO.SaleItemDAO;
+import DAO.SalesDAO;
+import GUI.Customer.CustomerGUI;
+import GUI.MainMenu.MainMenu; // Η κλάση MainMenu
+import Services.CustomerService;
+import Services.ProductService;
+import Services.SalesService;
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 public class LogIn extends JFrame {
@@ -26,13 +37,14 @@ public class LogIn extends JFrame {
 
     public LogIn(){
 
+
         setTitle("RetailHub - Login page");
         setContentPane(loginPanel);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
         setResizable(false);
-        setSize(600,300);
+        setSize(760,560);
 
         ButtonGroup radioMode = new ButtonGroup();
         radioMode.add(darkRadioButton);
@@ -41,13 +53,34 @@ public class LogIn extends JFrame {
 
         setVisible(true);
 
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                goToNextFrame();
+            }
+        });
+
+        this.setVisible(true);
     }
-    /*
-    private boolean isValidLogin(String username,String password){
 
+
+
+    private void goToNextFrame() {
+
+        ProductDAO productDAO = new ProductDAO();
+        ProductService productService = new ProductService(productDAO);
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        CustomerService customerService = new CustomerService(customerDAO);
+
+        SaleItemDAO saleItemDAO = new SaleItemDAO(productDAO);
+        SalesDAO salesDAO = new SalesDAO(customerDAO, saleItemDAO, productDAO);
+        SalesService salesService = new SalesService(salesDAO, saleItemDAO, productDAO);
+
+        MainMenu mainMenu = new MainMenu(productService, customerService, salesService);
+
+
+        this.dispose();
     }
-*/
+    }
 
-
-
-}

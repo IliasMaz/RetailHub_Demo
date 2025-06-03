@@ -22,7 +22,6 @@ public class MainMenu extends JFrame {
     private JButton profileButton;
     private JButton employeesButton1;
     private JButton salesButton1;
-    private JLabel choose;
     private JPanel mainMenu2ndPanel;
     private JPanel mainMenuFirstPanel;
     private JPanel topMainMenuPanel;
@@ -52,7 +51,7 @@ public class MainMenu extends JFrame {
         ImageIcon icon = new ImageIcon(imgUrl);
         imageRetailHub = new JLabel(icon);
 
-        topMainMenuPanel.add(imageRetailHub);
+        topMainMenuPanel.add(imageRetailHub,FlowLayout.LEFT);
 
         productsButton1.addActionListener(e -> {
             new ProductGUI(productService);

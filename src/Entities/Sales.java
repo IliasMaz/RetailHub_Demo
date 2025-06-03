@@ -11,6 +11,8 @@ import java.util.List;
 
 public class Sales {
 
+
+
     private int id;
     private LocalDate date; // Date of sale
     private LocalTime time; // Time of sale
@@ -20,7 +22,10 @@ public class Sales {
     private Customer customer; // customer who made the purchase
 
 
+
+
     public enum PaymentMethod {
+        NUll,
         CASH,
         CREDIT_CARD,
         DEBIT_CARD,
@@ -35,6 +40,15 @@ public class Sales {
         this.date = LocalDate.now();
         this.time = LocalTime.now();
         this.paymentMethod = paymentMethod;
+    }
+
+    public Sales() {
+        this.customer = null;
+        this.items = new ArrayList<>();
+        this.totalAmount = 0.0;
+        this.date = null;
+        this.time = null;
+        this.paymentMethod = null;
     }
 
     public void sumTotal() {
@@ -68,13 +82,7 @@ public class Sales {
         }
     }
 
-    public int getId(){
-        return id;
-    }
 
-    public void setId(int id){
-        this.id = id;
-    }
 
     public Customer getCustomer() {
         return customer;
@@ -103,6 +111,14 @@ public class Sales {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public LocalTime getTime() {

@@ -21,7 +21,7 @@ public class SaleItemDAO {
 
     boolean createSaleItem(SaleItem saleItem, int saleId){
 
-        String sql = "INSERT INTO SaleItems (saleId, productId, quantity) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO SaleItems (id, productId, quantity) VALUES (?, ?, ?)";
 
         try (Connection conn = SQLiteConnector.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
@@ -100,10 +100,24 @@ public class SaleItemDAO {
             return false;
     }
 
+    public boolean deleteSaleItemsBySaleId(int saleId) {
+        String sql = "DELETE FROM SaleItems WHERE salesId = ?";
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, saleId);
+            pstmt.executeUpdate(); // Δεν ελέγχουμε σειρές, απλά εκτελούμε
+            return true;
+        } catch (SQLException e) {
+            System.err.println("SaleItemDAO.deleteSaleItemsBySaleId: Error - " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<SaleItem> getSaleItemsBySaleId(int saleId){
 
         List<SaleItem> saleItemsList = new ArrayList<>();
-        String sql = "SELECT * FROM SaleItems WHERE salesId = ?";
+        String sql = "SELECT * FROM SaleItems WHERE id = ?";
 
         try (Connection conn = SQLiteConnector.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)){
@@ -136,6 +150,34 @@ public class SaleItemDAO {
         }
 
         return saleItemsList;
+    }
+
+    public int addSaleItem(SaleItem item, int saleId) {
+        String sql = "INSERT INTO SaleItems (salesId, productId, quantity) VALUES (?, ?, ?)";
+        Connection conn = null;
+        try {
+            conn = SQLiteConnector.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setInt(1, saleId);
+            pstmt.setInt(2, item.getProduct().getId());
+            pstmt.setInt(3, item.getQuantity());
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        item.setId(generatedKeys.getInt(1)); // Ενημέρωση του ID στο αντικείμενο SaleItem
+                        return item.getId();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("SaleItemDAO.addSaleItem: Error - " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (conn != null) try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
+        return -1; // ένδειξη σφάλματος
     }
 
 

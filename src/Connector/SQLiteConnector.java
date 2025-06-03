@@ -40,14 +40,14 @@ public class SQLiteConnector {
                     ");";
             stmt.execute(sqlCustomers);
 
-            String sqlSales = "CREATE TABLE IF NOT EXISTS GUI.Sales (" +
+            String sqlSales = "CREATE TABLE IF NOT EXISTS Sales (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "date TEXT NOT NULL," +
-                    "time TEXT NOT NULL," +
+                    "date TEXT ," +
+                    "time TEXT ," +
                     "totalAmount REAL NOT NULL," +
-                    "PaymentMethod TEXT NOT NULL," +
+                    "paymentMethod TEXT ," +
                     "customerId INTEGER," +
-                    "FOREIGN KEY(customerId) REFERENCES Customers(id) ON DELETE SET NULL," +
+                    "FOREIGN KEY(customerId) REFERENCES Customers(id) ON DELETE SET NULL" +
                     ");";
             stmt.execute(sqlSales);
 

@@ -167,5 +167,20 @@ public class ProductDAO {
         return null;
     }
 
+    public boolean updateProductStock(int productId, int newStock) {
+        String sql = "UPDATE Products SET stock = ? WHERE id = ?";
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, newStock);
+            pstmt.setInt(2, productId);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("ProductDAO.updateProductStock: Error - " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 }

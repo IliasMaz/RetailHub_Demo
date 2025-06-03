@@ -17,9 +17,9 @@ public class LogIn extends JFrame {
     private JButton fillButton;
     private JButton a169Button;
     private JRadioButton darkRadioButton;
-    private JTabbedPane ModeRadioButton;
+    private JTabbedPane apperanceButtonsLogIn;
     private JTabbedPane SettingsLogIn;
-    private JTabbedPane WindowLogIn;
+    private JTabbedPane windowResizeButtonLogIn;
     private JTabbedPane HelpLogIn;
     private JPanel contactHelpLogin;
     private JTabbedPane guideHelpLogIn;

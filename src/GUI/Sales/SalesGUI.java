@@ -30,7 +30,7 @@ public class SalesGUI extends JFrame {
         this.custService = custService;
         this.prodService = prodService;
 
-        setTitle("RetailHub - Sales Menu");
+        setTitle("RetailHub - GUI.Sales Menu");
         setContentPane(panel1);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         pack();

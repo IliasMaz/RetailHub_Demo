@@ -1,5 +1,6 @@
 package GUI.Sales;
 
+import Entities.SaleItem;
 import Entities.Sales;
 import Services.CustomerService;
 import Services.ProductService;
@@ -56,6 +57,16 @@ public class SalesGUI extends JFrame {
                 try {
                     salesService.finalizeAndSaveSale(completedSale);
                     refreshTable();
+
+                    try {
+                        String filePath = "receipts/sale_" + completedSale.getId() + ".txt";
+                        Sales.saveReceiptToFile(completedSale, filePath);
+                        JOptionPane.showMessageDialog(this, "Receipt created and saved in " + filePath,
+                                "Receipt Saved", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Error:\n" + ex.getMessage());
+                    }
+
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Error saving sale: " + ex.getMessage());
                 }
@@ -66,16 +77,47 @@ public class SalesGUI extends JFrame {
             int row = table1.getSelectedRow();
             if (row != -1) {
                 int id = (int) table1.getValueAt(row, 0);
-                Sales sale = salesService.getSaleById(id);
-                UpdateSale dialog = new UpdateSale(sale, custService, prodService,salesService);
-                dialog.setVisible(true);
-                if (dialog.getSale() != null) {
-                    salesService.finalizeAndSaveSale(sale);
-                    refreshTable();
+                Sales originalSale = salesService.getSaleById(id);
+                if (originalSale == null) return;
+
+
+                Sales editableSale = new Sales();
+                editableSale.setId(originalSale.getId());
+                editableSale.setDate(originalSale.getDate());
+                editableSale.setTime(originalSale.getTime());
+                editableSale.setTotalAmount(originalSale.getTotalAmount());
+                editableSale.setCustomer(originalSale.getCustomer());
+                editableSale.setPaymentMethod(originalSale.getPaymentMethod());
+
+                for (SaleItem si : originalSale.getItems()) {
+                    SaleItem copy = new SaleItem(si.getProduct(), si.getQuantity());
+                    copy.setId(si.getId());
+                    editableSale.getItems().add(copy);
                 }
 
+                UpdateSale dialog = new UpdateSale(editableSale, custService, prodService, salesService);
+                dialog.setVisible(true);
+
+                Sales result = dialog.getSale();
+                if (result != null) {
+
+                    originalSale.setCustomer(result.getCustomer());
+                    originalSale.setPaymentMethod(result.getPaymentMethod());
+                    originalSale.setDate(result.getDate());
+                    originalSale.setTime(result.getTime());
+                    originalSale.setTotalAmount(result.getTotalAmount());
+
+                    originalSale.getItems().clear();
+                    for (SaleItem si : result.getItems()) {
+                        originalSale.getItems().add(si);
+                    }
+
+                    salesService.finalizeAndSaveSale(originalSale);
+                    refreshTable();
+                }
             }
         });
+
 
         deleteButton.addActionListener(e -> {
             int row = table1.getSelectedRow();
@@ -103,15 +145,64 @@ public class SalesGUI extends JFrame {
                 for (Sales sale : salesList) {
                     model.addRow(new Object[]{
                             sale.getId(),
-                            sale.getCustomer() != null ? sale.getCustomer().getName() : "",
                             sale.getDate(),
                             sale.getTime(),
                             sale.getTotalAmount(),
-                            sale.getPaymentMethod()
+                            sale.getPaymentMethod(),
+                            sale.getCustomer() != null ? sale.getCustomer().getName() : ""
                     });
                 }
             }
         });
+
+        showDetailsButton.addActionListener(e -> {
+            int row = table1.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a sale to view its details.", "No Sale Selected", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            int saleId = (int) table1.getValueAt(row, 0);
+            Sales saleDetails = salesService.getSaleById(saleId);
+
+            if (saleDetails == null) {
+                JOptionPane.showMessageDialog(this, "Could not find details for Sale ID: " + saleId, "Sale Not Found", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            StringBuilder details = new StringBuilder();
+            details.append("Sale ID: " + saleDetails.getId());
+            details.append("\nCustomer Name: " + saleDetails.getCustomer().getName());
+            details.append("\nSale Date: " + saleDetails.getDate());
+            details.append("\nSale Time: " + saleDetails.getTime());
+            details.append("\nPayment Method: " + saleDetails.getPaymentMethod());
+
+            details.append("\nTotal: ").append(saleDetails.getTotalAmount()).append(" €\n");
+            details.append("Items:\n");
+            for (SaleItem item : saleDetails.getItems()) {
+                details.append("- ")
+                        .append(item.getName())
+                        .append(" x")
+                        .append(item.getQuantity())
+                        .append(" @ ")
+                        .append(item.getPrice())
+                        .append(" = ")
+                        .append(item.getLineTotal())
+                        .append("\n");
+            }
+
+            JOptionPane.showMessageDialog(this, details.toString(), "Sale Details", JOptionPane.INFORMATION_MESSAGE);
+
+        });
+
+        receiptButton.addActionListener(e -> {
+            int row = table1.getSelectedRow();
+            if (row == -1) return;
+            int saleId = (int) table1.getValueAt(row, 0);
+
+            Sales sale =  salesService.getSaleById(saleId);
+            JOptionPane.showMessageDialog(this, sale.receipt(), "Receipt", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+
         setVisible(true);
     }
 

@@ -117,21 +117,24 @@ public boolean removeItem(Sales currentSale, SaleItem itemToRemove) {
         if (saleToSave == null) {
             throw new IllegalArgumentException("Sale to save is null.");
         }
-        // Αν δεν έχει id, κάνε insert και πάρε id!
+
         if (saleToSave.getId() <= 0) {
-            boolean success = salesDAO.initiateSale(saleToSave); // κάνει insert και βάζει id στο saleToSave
+            boolean success = salesDAO.initiateSale(saleToSave);
             if (!success) throw new RuntimeException("Could not create sale in DB!");
         }
-        // Για κάθε saleItem, κάνε insert αν δεν έχει id!
+
         for (SaleItem item : saleToSave.getItems()) {
             if (item.getId() <= 0) {
                 int dbId = saleItemDAO.addSaleItem(item, saleToSave.getId());
-                if (dbId <= 0) throw new RuntimeException("Could not add sale item to DB!");
+                if (dbId <= 0)
+                    throw new RuntimeException("Could not add sale item to DB!");
                 item.setId(dbId);
-                // Προαιρετικά: update το stock εδώ!
+
             }
+            Product prod = item.getProduct();
+            prod.decreaseStock(item.getQuantity());
+            productDAO.updateProductStock(prod.getId(), prod.getStock());
         }
-        // Κάνε update το σύνολο, ημερομηνία, πελάτη, payment method (αν χρειάζεται)
         salesDAO.updateSale(saleToSave);
 
         return saleToSave;
@@ -181,7 +184,7 @@ public boolean removeItem(Sales currentSale, SaleItem itemToRemove) {
         }
 
         saleToCancel.getItems().clear();
-        saleToCancel.setTotalamount(0.0);
+        saleToCancel.setTotalAmount(0.0);
         saleToCancel.setCustomer(null);
         saleToCancel.setPaymentMethod(null);
         // saleToCancel.setId(0); // Ίσως θέλεις να μηδενίσεις και το ID για να δείξεις ότι δεν είναι πλέον έγκυρη πώληση

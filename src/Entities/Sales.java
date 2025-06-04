@@ -3,6 +3,9 @@ package Entities;
 import Entities.Product;
 import Entities.Customer;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -20,6 +23,18 @@ public class Sales {
     private List<SaleItem> items;
     private PaymentMethod paymentMethod; // Method of payment used
     private Customer customer; // customer who made the purchase
+
+
+    public static void saveReceiptToFile(Sales sale, String filePath) throws IOException {
+        String receipt = sale.receipt();
+        java.nio.file.Path parentDir = java.nio.file.Paths.get(filePath).getParent();
+        if (parentDir != null){
+            java.nio.file.Files.createDirectories(parentDir);
+        }
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write(receipt);
+        }
+    }
 
 
 
@@ -62,13 +77,34 @@ public class Sales {
         if (product == null || quantity <= 0) {
             throw new IllegalArgumentException("Invalid product or quantity");
         }
-        SaleItem newItem = new SaleItem(product, quantity);
+        //SaleItem newItem = new SaleItem(product, quantity);
+
+        int alreadyInSale = 0;
+        for (SaleItem item : items) {
+            if (item.getProduct().getId() == product.getId()) {
+                alreadyInSale = item.getQuantity();
+                break;
+            }
+        }
+        if (product.getStock() < (alreadyInSale + quantity)) {
+            throw new IllegalStateException("Insufficient stock for product.");
+        }
+
         if(product.getStock() < quantity){
             throw new IllegalStateException("Insufficient stock for product.");
         }
+
+        for (SaleItem item : items) {
+            if (item.getProduct().getId() == product.getId()) {
+                item.setQuantity(item.getQuantity() + quantity);
+                sumTotal();
+                return;
+            }
+        }
+        SaleItem newItem = new SaleItem(product, quantity);
         this.items.add(newItem);
         sumTotal();
-        product.decreaseStock(quantity);
+        //product.decreaseStock(quantity);
 
     }
 
@@ -77,7 +113,7 @@ public class Sales {
             sumTotal();
             Product p = itemToRemove.getProduct();
             int qnty = itemToRemove.getQuantity();
-            p.increaseStock(qnty);
+            //p.increaseStock(qnty);
         }
     }
 
@@ -103,8 +139,8 @@ public class Sales {
         return totalAmount;
     }
 
-    public void setTotalamount(double totalamount) {
-        this.totalAmount = totalamount;
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public LocalDate getDate() {
@@ -139,33 +175,28 @@ public class Sales {
         return paymentMethod;
     }
 
-    public void receipt() {
-
-        // At first we have the header
-
-        String receipt =
-                "=== RECEIPT ===\n"
-                        + "Sale ID: " + id + "\n"
-                        + "Date   : " + date + "\n"
-                        + "Time   : " + time + "\n"
-                        + "Items  : " + items;
-
-        // Add each product to the receipt
+    public String receipt() {
+        StringBuilder receipt = new StringBuilder();
+        receipt.append("=== RECEIPT ===\n")
+                .append("Sale ID: ").append(id).append("\n")
+                .append("Date   : ").append(date).append("\n")
+                .append("Time   : ").append(time).append("\n")
+                .append("Customer: ").append(customer != null ? customer.getName() : "-").append("\n")
+                .append("Payment: ").append(paymentMethod != null ? paymentMethod : "-").append("\n")
+                .append("----------------------\n")
+                .append("Items:\n");
 
         for (SaleItem i : items) {
-            receipt +=  "  - " + i.getName() + " x" + i.getQuantity() + " @ " + i.getPrice() + "\n";
+            receipt.append(String.format("  - %-18s x%-3d @ %-8.2f = %8.2f\n",
+                    i.getName(), i.getQuantity(), i.getPrice(), i.getLineTotal()));
         }
 
-        // Payment method and total amount
+        receipt.append("----------------------\n")
+                .append(String.format("TOTAL  : %.2f €\n", totalAmount));
 
-        receipt +=
-                "Payment: " + paymentMethod + "\n"
-                        + "-----------------\n"
-                        + "TOTAL  : " + totalAmount + "\n";
-
-        System.out.println(receipt);
-
+        return receipt.toString();
     }
+
 
     //THA TO TESTAROUME LIGO MPOREI NA THELEI ALLH METHODO PRINT
     @Override

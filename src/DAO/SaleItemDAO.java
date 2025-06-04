@@ -117,10 +117,11 @@ public class SaleItemDAO {
     public List<SaleItem> getSaleItemsBySaleId(int saleId){
 
         List<SaleItem> saleItemsList = new ArrayList<>();
-        String sql = "SELECT * FROM SaleItems WHERE id = ?";
+        //String sql = "SELECT * FROM SaleItems WHERE id = ?";
+        String sql = "SELECT * FROM SaleItems WHERE salesId = ?";
 
         try (Connection conn = SQLiteConnector.getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql)){
+            PreparedStatement statement = conn.prepareStatement(sql)){
 
             statement.setInt(1, saleId);
 

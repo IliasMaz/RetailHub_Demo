@@ -272,7 +272,7 @@ public class SalesDAO {
 
                 if (dateString != null) sale.setDate(LocalDate.parse(dateString));
                 if (timeString != null) sale.setTime(LocalTime.parse(timeString));
-                sale.setTotalamount(totalAmount);
+                sale.setTotalAmount(totalAmount);
 
                 List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
 
@@ -324,7 +324,7 @@ public class SalesDAO {
 
                     if (dateString != null) sale.setDate(LocalDate.parse(dateString));
                     if (timeString != null) sale.setTime(LocalTime.parse(timeString));
-                    sale.setTotalamount(totalAmount);
+                    sale.setTotalAmount(totalAmount);
 
                     List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
                     if (sale.getItems() != null) {
@@ -403,7 +403,7 @@ public class SalesDAO {
                     sale.setId(saleId);
                     if (dateString != null) sale.setDate(LocalDate.parse(dateString));
                     if (timeString != null) sale.setTime(LocalTime.parse(timeString));
-                    sale.setTotalamount(totalAmount);
+                    sale.setTotalAmount(totalAmount);
 
                     List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
                     if (sale.getItems() != null) {
@@ -458,7 +458,7 @@ public class SalesDAO {
                 sale.setId(saleId);
                 if (dateString != null) sale.setDate(LocalDate.parse(dateString));
                 if (timeString != null) sale.setTime(LocalTime.parse(timeString));
-                sale.setTotalamount(totalAmount);
+                sale.setTotalAmount(totalAmount);
 
                 // Προαιρετικά: φόρτωσε και sale items
                 List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);

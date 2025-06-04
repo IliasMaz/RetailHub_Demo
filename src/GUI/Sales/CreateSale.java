@@ -95,6 +95,12 @@ public class CreateSale extends JDialog {
             }
         });
 
+        for (SaleItem item : sale.getItems()) {
+            System.out.println(item.getProduct().getName() + " qty: " + item.getQuantity() + " price: " + item.getPrice());
+        }
+        System.out.println("Expected total: " + sale.getTotalAmount());
+
+
         // Save/Cancel
         saveButton.addActionListener(e -> {
             if (sale.getItems().isEmpty()) {

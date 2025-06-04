@@ -103,7 +103,6 @@ public class Sales {
         return totalAmount;
     }
 
-
     public void setTotalamount(double totalamount) {
         this.totalAmount = totalamount;
     }

@@ -70,10 +70,10 @@ public class SaleItem {
 
     @Override
     public String toString() {
-        return "SaleItem{" +
-                "id=" + id +
-                ", product=" + (product != null ? product.getName() : "N/A") +
-                ", quantity=" + quantity +
+        return "Item: {" +
+                "ID = " + id +
+                ", PRODUCT = " + (product != null ? product.getName() : "N/A") +
+                ", QUANTITY = " + quantity +
                 '}';
     }
 

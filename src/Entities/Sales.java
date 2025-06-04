@@ -60,8 +60,8 @@ public class Sales {
         this.customer = null;
         this.items = new ArrayList<>();
         this.totalAmount = 0.0;
-        this.date = null;
-        this.time = null;
+        this.date = LocalDate.now();
+        this.time = LocalTime.now();
         this.paymentMethod = null;
     }
 
@@ -187,7 +187,7 @@ public class Sales {
                 .append("Items:\n");
 
         for (SaleItem i : items) {
-            receipt.append(String.format("  - %-18s x%-3d @ %-8.2f = %8.2f\n",
+            receipt.append(String.format("  - %-18s x%-3d € %-8.2f = %8.2f\n",
                     i.getName(), i.getQuantity(), i.getPrice(), i.getLineTotal()));
         }
 

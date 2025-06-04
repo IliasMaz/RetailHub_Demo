@@ -42,13 +42,10 @@ public class SalesService {
         }
     }
 
-//TODO AFTI EINAI GIA TO OUMPI ADD WSTE NA PROSTHETEI SALEITEM
+//TODO AFTI EINAI GIA TO KOUMPI ADD WSTE NA PROSTHETEI SALEITEM
 public Sales addItem(Sales currentSale, Product product, int quantity) {
     if (currentSale == null) {
         throw new IllegalArgumentException("Current sale object cannot be null.");
-    }
-    if (currentSale.getId() <= 0) {
-        throw new IllegalStateException("Sale has not been initiated in the database yet (ID missing).");
     }
     if (product == null || product.getId() <= 0) {
         throw new IllegalArgumentException("Product is null or does not have a valid ID.");
@@ -57,135 +54,89 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
         throw new IllegalArgumentException("Quantity must be positive.");
     }
 
-
-    int stock = product.getStock();
-    int itemCount = currentSale.getItems().size();
-    SaleItem newItem = null;
-
-    try {
+    if (currentSale.getId() <= 0) {
         currentSale.addItem(product, quantity);
-
-        if (currentSale.getItems().size() > itemCount) {
-            newItem = currentSale.getItems().get(currentSale.getItems().size() - 1);
-        } else {
-            throw new RuntimeException("Item was not added to in-memory sale list by currentSale.addItem().");
-        }
-
-        int saleItemIdFromDB = saleItemDAO.addSaleItem(newItem, currentSale.getId());
-
-        //rollback
-        if (saleItemIdFromDB == -1) {
-            product.setStock(stock);
-            currentSale.getItems().remove(newItem);
-            currentSale.sumTotal();
-            System.err.println("SalesService: Failed to save SaleItem to DB. In-memory changes rolled back.");
-            throw new RuntimeException("Failed to save SaleItem to database for product " + product.getName());
-        }
-
-
-        if (!productDAO.updateProductStock(product.getId(), product.getStock())) {
-            // Rollback: Διαγραφή του SaleItem από τη βάση και επαναφορά in-memory αλλαγών
-            saleItemDAO.deleteSaleItem(saleItemIdFromDB);
-            product.setStock(stock);
-            currentSale.getItems().remove(newItem);
-            currentSale.sumTotal();
-            System.err.println("SalesService: Failed to update product stock in DB. SaleItem and in-memory changes rolled back.");
-            throw new RuntimeException("Failed to update product stock in database for " + product.getName());
-        }
-
-        System.out.println("SalesService: Item " + product.getName() + " (SaleItem ID: " + saleItemIdFromDB + ") added to sale ID " + currentSale.getId() + " and DB updated. Current total: " + currentSale.getTotalAmount());
         return currentSale;
+    }
 
-    } catch (IllegalStateException | IllegalArgumentException e) {
-        System.err.println("SalesService: Could not add item - " + e.getMessage());
+    return currentSale;
+}
+
+//TODO SYNDESE AFTIN ME TO REMOVE ITEM
+public boolean removeItem(Sales currentSale, SaleItem itemToRemove) {
+    if (currentSale == null) {
+        throw new IllegalArgumentException("Current sale object cannot be null.");
+    }
+    if (itemToRemove == null) {
+        throw new IllegalArgumentException("Item to remove cannot be null.");
+    }
+
+    if (currentSale.getId() <= 0) {
+        boolean removed = currentSale.getItems().remove(itemToRemove);
+        if (removed) {
+            Product p = itemToRemove.getProduct();
+            int qnty = itemToRemove.getQuantity();
+            if (p != null) p.increaseStock(qnty);
+            currentSale.sumTotal();
+        }
+        return removed;
+    }
+
+    if (itemToRemove.getId() <= 0) {
+        System.err.println("Item to remove does not have a valid database ID.");
+        return false;
+    }
+    Product productToRestore = itemToRemove.getProduct();
+    int orginalStock = productToRestore.getStock();
+    int itemIndex = currentSale.getItems().indexOf(itemToRemove);
+    if (itemIndex == -1) return false;
+    try {
+        currentSale.removeItem(itemToRemove);
+        if (!saleItemDAO.deleteSaleItem(itemToRemove.getId())) {
+            currentSale.getItems().add(itemIndex, itemToRemove);
+            productToRestore.setStock(orginalStock);
+            currentSale.sumTotal();
+            throw new RuntimeException("Failed to delete SaleItem from DB.");
+        }
+
+        return true;
+    } catch (Exception e) {
+
+        if (!currentSale.getItems().contains(itemToRemove)) {
+            currentSale.getItems().add(itemIndex != -1 ? itemIndex : 0, itemToRemove);
+            productToRestore.setStock(orginalStock);
+            currentSale.sumTotal();
+        }
         throw e;
     }
 }
 
-//TODO SYNDESE AFTIN ME TO REMOVE ITEM
-    public boolean removeItem(Sales currentSale, SaleItem itemToRemove) {
-        if (currentSale == null) {
-            throw new IllegalArgumentException("Current sale object cannot be null.");
-        }
-        if (itemToRemove == null) {
-            throw new IllegalArgumentException("Item to remove cannot be null.");
-        }
-        if (itemToRemove.getId() <= 0) {
-            System.err.println("SalesService: Item to remove ("+ itemToRemove.getName() +") does not have a valid database ID. Cannot remove from DB.");
-            return false;
-        }
-
-        Product productToRestore = itemToRemove.getProduct();
-        int quantityRestored = itemToRemove.getQuantity();
-        int orginalStock = productToRestore.getStock();
-
-        int itemIndex = currentSale.getItems().indexOf(itemToRemove);
-        if (itemIndex == -1) {
-            System.err.println("SalesService: Item " + itemToRemove.getName() + " not found in the current in-memory sale list.");
-            return false;
-        }
-
-        try {
-            currentSale.removeItem(itemToRemove);
-
-            if (!saleItemDAO.deleteSaleItem(itemToRemove.getId())) {
-                currentSale.getItems().add(itemIndex, itemToRemove);
-                productToRestore.setStock(orginalStock);
-                currentSale.sumTotal();
-                System.err.println("SalesService: Failed to delete SaleItem from DB. In-memory changes rolled back.");
-                throw new RuntimeException("Failed to delete SaleItem " + itemToRemove.getName() + " from database.");
-            }
-
-
-            if (!productDAO.updateProductStock(productToRestore.getId(), productToRestore.getStock())) {
-                saleItemDAO.addSaleItem(itemToRemove, currentSale.getId());
-                currentSale.getItems().add(itemIndex, itemToRemove);
-                productToRestore.setStock(orginalStock);
-                currentSale.sumTotal();
-                System.err.println("SalesService: Failed to update product stock in DB after item removal. SaleItem re-added to DB and in-memory changes rolled back.");
-                throw new RuntimeException("Failed to update product stock in database for " + productToRestore.getName() + " after removal.");
-            }
-
-            System.out.println("SalesService: Item " + itemToRemove.getName() + " (SaleItem ID: " + itemToRemove.getId() + ") removed from sale ID " + currentSale.getId() + " and DB updated. Current total: " + currentSale.getTotalAmount());
-            return true;
-
-        } catch (Exception e) {
-            System.err.println("SalesService: Error during item removal - " + e.getMessage());
-            if (!currentSale.getItems().contains(itemToRemove)) {
-                currentSale.getItems().add(itemIndex != -1 ? itemIndex : 0, itemToRemove);
-                productToRestore.setStock(orginalStock);
-                currentSale.sumTotal();
-            }
-            throw e;
-        }
-    }
-
 
     //TODO SYNDESE AFTIN ME TO SAVE
     public Sales finalizeAndSaveSale(Sales saleToSave) {
-        if (saleToSave == null || saleToSave.getId() <= 0) {
-            throw new IllegalArgumentException("Sale to save is null or not initiated in DB (ID missing).");
+        if (saleToSave == null) {
+            throw new IllegalArgumentException("Sale to save is null.");
         }
-        if (saleToSave.getItems().isEmpty()) {
-            System.out.println("SalesService: Sale has no items. Finalizing an empty sale. Consider if this is intended.");
-
+        // Αν δεν έχει id, κάνε insert και πάρε id!
+        if (saleToSave.getId() <= 0) {
+            boolean success = salesDAO.initiateSale(saleToSave); // κάνει insert και βάζει id στο saleToSave
+            if (!success) throw new RuntimeException("Could not create sale in DB!");
         }
-
-        saleToSave.setDate(LocalDate.now());
-        saleToSave.setTime(LocalTime.now());
-        saleToSave.sumTotal();
-
-        if (salesDAO.updateSale(saleToSave)) {
-            System.out.println("SalesService: Sale ID " + saleToSave.getId() + " finalized and saved successfully.");
-            return saleToSave;
-        } else {
-
-             System.err.println("SalesService: CRITICAL - Failed to update final sale (ID: " + saleToSave.getId() + ") details in database. " +
-                    "Individual items and stock changes WERE ALREADY COMMITTED TO DB. " +
-                    "Database may be in a partially inconsistent state regarding this sale's header info.");
-            throw new RuntimeException("Failed to save/update the final sale details. Previous item/stock changes persist.");
+        // Για κάθε saleItem, κάνε insert αν δεν έχει id!
+        for (SaleItem item : saleToSave.getItems()) {
+            if (item.getId() <= 0) {
+                int dbId = saleItemDAO.addSaleItem(item, saleToSave.getId());
+                if (dbId <= 0) throw new RuntimeException("Could not add sale item to DB!");
+                item.setId(dbId);
+                // Προαιρετικά: update το stock εδώ!
+            }
         }
+        // Κάνε update το σύνολο, ημερομηνία, πελάτη, payment method (αν χρειάζεται)
+        salesDAO.updateSale(saleToSave);
+
+        return saleToSave;
     }
+
 
     //todo afto syndese to me to cancel gia na mporei na epistrefei ta stock stn basi prin kaneis dispose
     public void cancelSale(Sales saleToCancel) {
@@ -304,6 +255,11 @@ public Sales addItem(Sales currentSale, Product product, int quantity) {
             throw new RuntimeException("Sale deletion failed at DAO level for ID: " + saleId);
         }
     }
+
+    public List<Sales> findSalesByCustomerName(String customerName) {
+        return salesDAO.getSalesByCustomerName(customerName);
+    }
+
 
 
 

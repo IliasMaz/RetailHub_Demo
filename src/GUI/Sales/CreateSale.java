@@ -6,6 +6,7 @@ import Entities.SaleItem;
 import Entities.Sales;
 import Services.CustomerService;
 import Services.ProductService;
+import Services.SalesService;
 
 import javax.swing.*;
 
@@ -19,14 +20,23 @@ public class CreateSale extends JDialog {
     private JList<SaleItem> itemList;
     private JButton saveButton;
     private JButton cancelButton;
+    private JPanel panel1;
     private DefaultListModel<SaleItem> itemListModel;
-    private Sales sale;
+    private JLabel totalLabel;
 
-    public CreateSale(CustomerService customerService, ProductService productService) {
+    private final Sales sale;         // ΠΑΝΩ ΣΕ ΑΥΤΟ ΔΟΥΛΕΥΕΙΣ!
+    private final SalesService salesService;
+
+    public CreateSale(Sales sale, CustomerService customerService, ProductService productService, SalesService salesService) {
+        this.sale = sale;
+        this.salesService = salesService;
+
         setTitle("New Sale");
         setModal(true);
+        setContentPane(panel1);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        pack();
 
         // Customer dropdown
         customerDrop.removeAllItems();
@@ -40,12 +50,13 @@ public class CreateSale extends JDialog {
         paymentDrop.removeAllItems();
         for (Sales.PaymentMethod m : Sales.PaymentMethod.values()) paymentDrop.addItem(m);
 
-
         itemListModel = new DefaultListModel<>();
         itemList.setModel(itemListModel);
 
+        refreshItemList();
+
         // Add Item Button
-        addButton.addActionListener(e->{
+        addButton.addActionListener(e -> {
             Product prod = (Product) productDrop.getSelectedItem();
             int quantity;
             try {
@@ -59,28 +70,34 @@ public class CreateSale extends JDialog {
                 JOptionPane.showMessageDialog(this,"Select a product and enter positive quantity!");
                 return;
             }
-            if (prod.getStock() < quantity) {
-                JOptionPane.showMessageDialog(this, "Not enough stock for this product!");
-                return;
+            try {
+                salesService.addItem(sale, prod, quantity);
+                refreshItemList();
+                updateTotal();
+                qtyField.setText("");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
-            SaleItem item = new SaleItem(prod,quantity);
-            itemListModel.addElement(item);
-            qtyField.setText("");
-
         });
 
         // Remove Item Button
         removeButton.addActionListener(e -> {
             int idx = itemList.getSelectedIndex();
             if(idx != -1) {
-                itemListModel.remove(idx);
+                SaleItem item = sale.getItems().get(idx);
+                try {
+                    salesService.removeItem(sale, item);
+                    refreshItemList();
+                    updateTotal();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+                }
             }
         });
 
-
         // Save/Cancel
         saveButton.addActionListener(e -> {
-            if (itemListModel.isEmpty()) {
+            if (sale.getItems().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Add at least one product!");
                 return;
             }
@@ -90,17 +107,12 @@ public class CreateSale extends JDialog {
                 JOptionPane.showMessageDialog(this, "Choose customer and payment method!");
                 return;
             }
-            sale = new Sales(customer,paymentMethod);
-            for (int i = 0; i < itemListModel.size(); i++) {
-                SaleItem item = itemListModel.get(i);
-                sale.addItem(item.getProduct(), item.getQuantity());
-            }
+            sale.setCustomer(customer);
             sale.setPaymentMethod(paymentMethod);
             dispose();
         });
 
         cancelButton.addActionListener(e -> {
-            sale = null;
             dispose();
         });
     }
@@ -109,5 +121,15 @@ public class CreateSale extends JDialog {
         return sale;
     }
 
+    private void refreshItemList() {
+        itemListModel.clear();
+        for (SaleItem si : sale.getItems()) {
+            itemListModel.addElement(si);
+        }
+    }
 
+    private void updateTotal() {
+        if (totalLabel != null)
+            totalLabel.setText("Σύνολο: " + sale.getTotalAmount() + " €");
+    }
 }

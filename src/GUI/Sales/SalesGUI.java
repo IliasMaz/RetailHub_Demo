@@ -44,29 +44,36 @@ public class SalesGUI extends JFrame {
         refreshTable();
 
         createButton.addActionListener(e -> {
-            CreateSale dialog = new CreateSale(custService, prodService);
+            Sales newSale = new Sales();
+            CreateSale dialog = new CreateSale(newSale, custService, prodService,salesService);
             dialog.setVisible(true);
-            Sales saleCompleted = dialog.getSale();
-            if (saleCompleted != null) {
-                salesService.finalizeAndSaveSale(saleCompleted);
-                refreshTable();
+
+
+            Sales completedSale = dialog.getSale();
+            if (completedSale != null && completedSale.getCustomer() != null
+                    && completedSale.getPaymentMethod() != null
+                    && !completedSale.getItems().isEmpty()) {
+                try {
+                    salesService.finalizeAndSaveSale(completedSale);
+                    refreshTable();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error saving sale: " + ex.getMessage());
+                }
             }
         });
 
         updateButton.addActionListener(e -> {
             int row = table1.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Choose sale first!");
-                return;
-            }
-            int id = (int) table1.getValueAt(row, 0);
-            Sales sale = salesService.getSaleById(id);
-            UpdateSale dialog = new UpdateSale(sale, custService, prodService);
-            dialog.setVisible(true);
-            Sales updatedSale = dialog.getSale();
-            if (updatedSale != null) {
-                //salesService.updateSale(updatedSale);
-                refreshTable();
+            if (row != -1) {
+                int id = (int) table1.getValueAt(row, 0);
+                Sales sale = salesService.getSaleById(id);
+                UpdateSale dialog = new UpdateSale(sale, custService, prodService,salesService);
+                dialog.setVisible(true);
+                if (dialog.getSale() != null) {
+                    salesService.finalizeAndSaveSale(sale);
+                    refreshTable();
+                }
+
             }
         });
 
@@ -79,7 +86,8 @@ public class SalesGUI extends JFrame {
             int id = (int) table1.getValueAt(row, 0);
             int confirm = JOptionPane.showConfirmDialog(this, "Delete sale?", "Deletion", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                salesService.deleteSale(id);
+                Sales sale = salesService.getSaleById(id);
+                salesService.cancelSale(sale);
                 refreshTable();
             }
         });
@@ -90,28 +98,20 @@ public class SalesGUI extends JFrame {
             DefaultTableModel model = (DefaultTableModel) table1.getModel();
             model.setRowCount(0);
             String text = searchField.getText().trim();
-            int customerId = Integer.parseInt(text);
-            if (customerId <= 0) {
-                JOptionPane.showMessageDialog(this, "Customer ID must be a positive number.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            List<Sales> salesFound = salesService.findSalesByCustomer(customerId);
-            for (Sales sale : salesFound) {
-                model.addRow(new Object[]{
-                        sale.getId(),
-                        (sale.getCustomer() != null ? sale.getCustomer().getName() : "N/A"),
-                        sale.getDate(),
-                        sale.getTime(),
-                        sale.getTotalAmount(),
-                        sale.getPaymentMethod()
-                });
+            if (!text.isEmpty()) {
+                List<Sales> salesList = salesService.findSalesByCustomerName(text);
+                for (Sales sale : salesList) {
+                    model.addRow(new Object[]{
+                            sale.getId(),
+                            sale.getCustomer() != null ? sale.getCustomer().getName() : "",
+                            sale.getDate(),
+                            sale.getTime(),
+                            sale.getTotalAmount(),
+                            sale.getPaymentMethod()
+                    });
                 }
-            });
-
-
-
-
-
+            }
+        });
         setVisible(true);
     }
 
@@ -121,7 +121,12 @@ public class SalesGUI extends JFrame {
         List<Sales> sales = salesService.getAllSales();
         for (Sales sale : sales) {
             model.addRow(new Object[]{
-                    sale.getId(), sale.getCustomer().getName(), sale.getDate(), sale.getTime(), sale.getTotalAmount(), sale.getPaymentMethod()
+                    sale.getId(),
+                    sale.getDate(),
+                    sale.getTime(),
+                    sale.getTotalAmount(),
+                    sale.getPaymentMethod(),
+                    sale.getCustomer() != null ? sale.getCustomer().getName() : ""
             });
         }
     }

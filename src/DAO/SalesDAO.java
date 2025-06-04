@@ -421,6 +421,62 @@ public class SalesDAO {
         return salesList;
     }
 
+    public List<Sales> getSalesByCustomerName(String customerName) {
+        List<Sales> salesList = new ArrayList<>();
+        String sql = "SELECT s.id, s.customerId, s.date, s.time, s.totalAmount, s.paymentMethod, " +
+                "c.id as customer_id, c.name as customer_name " +
+                "FROM Sales s " +
+                "LEFT JOIN Customers c ON s.customerId = c.id " +
+                "WHERE LOWER(c.name) LIKE ?";
+        try (Connection conn = SQLiteConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + customerName.toLowerCase() + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int saleId = rs.getInt("id");
+                int customerId = rs.getInt("customer_id");
+                String custName = rs.getString("customer_name");
+                String dateString = rs.getString("date");
+                String timeString = rs.getString("time");
+                double totalAmount = rs.getDouble("totalAmount");
+                String paymentMethodString = rs.getString("paymentMethod");
+
+                Customer customer = new Customer();
+                customer.setId(customerId);
+                customer.setName(custName);
+
+                Sales.PaymentMethod paymentMethod = null;
+                if (paymentMethodString != null) {
+                    try {
+                        paymentMethod = Sales.PaymentMethod.valueOf(paymentMethodString);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Invalid payment method in DB for sale ID " + saleId + ": " + paymentMethodString);
+                    }
+                }
+
+                Sales sale = new Sales(customer, paymentMethod);
+                sale.setId(saleId);
+                if (dateString != null) sale.setDate(LocalDate.parse(dateString));
+                if (timeString != null) sale.setTime(LocalTime.parse(timeString));
+                sale.setTotalamount(totalAmount);
+
+                // Προαιρετικά: φόρτωσε και sale items
+                List<SaleItem> itemsForThisSale = saleItemDAO.getSaleItemsBySaleId(saleId);
+                if (sale.getItems() != null) {
+                    sale.getItems().clear();
+                    sale.getItems().addAll(itemsForThisSale);
+                }
+
+                salesList.add(sale);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting sales by customer name: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return salesList;
+    }
+
+
 
 
 }

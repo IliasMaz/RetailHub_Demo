@@ -9,14 +9,8 @@ import java.sql.*;
 import org.sqlite.SQLiteException;
 
 public class UserDAO {
-    private static UserDAO instance;
-    private UserDAO() {}
-    public static UserDAO getInstance() {
-        if (instance == null) {
-            instance = new UserDAO();
-        }
-        return instance;
-    }
+    public UserDAO() {}
+
     public boolean createUser(User user) {
         String sql = "INSERT INTO Users (username, password, role, email, name) VALUES (?, ?, ?, ?, ?)";
 

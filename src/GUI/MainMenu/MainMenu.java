@@ -3,12 +3,16 @@ package GUI.MainMenu;
 import GUI.Customer.CustomerGUI;
 import GUI.Product.ProductGUI;
 import GUI.Sales.SalesGUI;
+import GUI.User.UserGUI;
 import Services.CustomerService;
 import Services.ProductService;
 import Services.SalesService;
+import Services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URL;
 
 public class MainMenu extends JFrame {
@@ -20,7 +24,7 @@ public class MainMenu extends JFrame {
     private JButton helpButton;
     private JButton settingsButton;
     private JButton profileButton;
-    private JButton employeesButton1;
+    private JButton usersButton1;
     private JButton salesButton1;
     private JPanel mainMenu2ndPanel;
     private JPanel mainMenuFirstPanel;
@@ -28,10 +32,11 @@ public class MainMenu extends JFrame {
     private ProductService productService;
     private CustomerService customerService;
     private SalesService salesService;
+    private UserService userService;
     private JLabel imageRetailHub;
     //private SalesService salesService;
 
-    public MainMenu(ProductService productService, CustomerService customerService, SalesService salesService){
+    public MainMenu(ProductService productService, CustomerService customerService, SalesService salesService, UserService userService){
 
 
 
@@ -66,7 +71,12 @@ public class MainMenu extends JFrame {
             new SalesGUI(salesService, customerService, productService);
         });
 
+        usersButton1.addActionListener(e ->  {
+            new UserGUI(userService);
+        });
+
         this.setVisible(true);
+
     }
 
 

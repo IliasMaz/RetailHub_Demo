@@ -1,14 +1,13 @@
 package GUI.LogIn;
 
-import DAO.CustomerDAO;
-import DAO.ProductDAO;
-import DAO.SaleItemDAO;
-import DAO.SalesDAO;
+import DAO.*;
 import GUI.Customer.CustomerGUI;
 import GUI.MainMenu.MainMenu; // Η κλάση MainMenu
 import Services.CustomerService;
 import Services.ProductService;
 import Services.SalesService;
+import Services.UserService;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,8 +75,10 @@ public class LogIn extends JFrame {
         SaleItemDAO saleItemDAO = new SaleItemDAO(productDAO);
         SalesDAO salesDAO = new SalesDAO(customerDAO, saleItemDAO, productDAO);
         SalesService salesService = new SalesService(salesDAO, saleItemDAO, productDAO);
+        UserDAO userDAO = new UserDAO();
+        UserService userService = new UserService(userDAO);
 
-        MainMenu mainMenu = new MainMenu(productService, customerService, salesService);
+        MainMenu mainMenu = new MainMenu(productService, customerService, salesService, userService);
 
 
         this.dispose();

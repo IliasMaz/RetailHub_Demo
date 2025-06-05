@@ -82,6 +82,15 @@
             <properties/>
             <border type="none"/>
             <children>
+              <hspacer id="7dbfc">
+                <constraints/>
+              </hspacer>
+              <hspacer id="40e3f">
+                <constraints/>
+              </hspacer>
+              <hspacer id="5e00a">
+                <constraints/>
+              </hspacer>
               <grid id="172ae" binding="mainMenuFirstPanel" layout-manager="GridBagLayout">
                 <constraints/>
                 <properties/>
@@ -167,15 +176,6 @@
                   </component>
                 </children>
               </grid>
-              <component id="7b51e" class="javax.swing.JLabel" binding="titleMainMenu">
-                <constraints/>
-                <properties>
-                  <font name="Fira Code" size="26" style="1"/>
-                  <horizontalAlignment value="4"/>
-                  <horizontalTextPosition value="4"/>
-                  <text value=" Main Menu"/>
-                </properties>
-              </component>
             </children>
           </grid>
         </children>

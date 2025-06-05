@@ -9,8 +9,10 @@ import Services.SalesService;
 import Services.UserService;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
 
 public class LogIn extends JFrame {
@@ -33,6 +35,10 @@ public class LogIn extends JFrame {
     private JTabbedPane HelpLogIn;
     private JPanel contactHelpLogin;
     private JTabbedPane guideHelpLogIn;
+    private JLabel welcomeMsg;
+    private JLabel imageLabel;
+    private JPanel panelForImage;
+    private JLabel imageRetailHub;
 
     public LogIn(){
 

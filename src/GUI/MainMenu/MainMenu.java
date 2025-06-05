@@ -19,7 +19,6 @@ public class MainMenu extends JFrame {
     private JButton productsButton1;
     private JButton customersButton1;
     private JPanel mainMenuPanel;
-    private JLabel titleMainMenu;
     private JButton homeButton;
     private JButton helpButton;
     private JButton settingsButton;
@@ -44,7 +43,7 @@ public class MainMenu extends JFrame {
         setResizable(false);
         setSize(760,560);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
         this.productService = productService;

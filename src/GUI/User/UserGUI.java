@@ -140,7 +140,7 @@ public class UserGUI extends JFrame {
             List<User> users = userService.getAllUsers();
             for (User u : users) {
                 model.addRow(new Object[]{
-                        u.getId(), u.getName(), u.getUsername(),  u.getRole(), u.getEmail(),
+                        u.getId(), u.getName(), u.getUsername(),  u.getRole(), u.getEmail()
                 });
             }
         }

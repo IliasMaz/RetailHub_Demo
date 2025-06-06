@@ -51,10 +51,12 @@ public class CreateUser extends JDialog {
 
                     if (password.length() < 6) {
                         JOptionPane.showMessageDialog(CreateUser.this, "Password must be at least 6 characters long");
+                        return;
                     }
 
                     if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
                         JOptionPane.showMessageDialog(CreateUser.this, "Invalid email");
+                        return;
                     }
                     User user = new User(name, username, password, role, email);
                     saved = true;

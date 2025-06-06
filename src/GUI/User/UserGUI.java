@@ -32,7 +32,9 @@ public class UserGUI extends JFrame {
         setLocationRelativeTo(null);
 
         table1.setModel(new DefaultTableModel(
-                new Object[]{"ID", "Name", "Email", "Role", "Username"}, 0
+
+                new Object[]{"ID", "Name", "Username", "Role", "Email"},
+                0
         ));
         refreshTable();
 
@@ -41,6 +43,24 @@ public class UserGUI extends JFrame {
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                CreateUser dialog = new CreateUser();
+                dialog.setVisible(true);
+                User newUser = dialog.getCreatedUser();
+                System.out.println("User from dialog: " + newUser);
+                if (newUser != null) {
+                    try {
+                        userService.createUser(newUser);
+                        refreshTable();
+                    }catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(UserGUI.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(UserGUI.this, "An unexpected error occurred during creation: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
+                }else{
+                    System.out.println("newUser is null. User probably cancelled or save failed in dialog.");
+                }
+                
 
             }
         });
@@ -72,11 +92,11 @@ public class UserGUI extends JFrame {
                 int row = table1.getSelectedRow();
                 if (row == -1) {
                     JOptionPane.showMessageDialog(UserGUI.this
-                            , "Choose customer first!");
+                            , "Choose user first!");
                     return;
                 }
                 int id = (int) table1.getValueAt(row, 0);
-                int confirm = JOptionPane.showConfirmDialog(UserGUI.this, "Delete Customer?", "Deletion", JOptionPane.YES_NO_OPTION);
+                int confirm = JOptionPane.showConfirmDialog(UserGUI.this, "Delete User?", "Deletion", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     try {
                         boolean deleted = userService.deleteUser(id);
@@ -102,8 +122,11 @@ public class UserGUI extends JFrame {
                 User u = userService.findUserByUsername(text);
                 if (u != null) {
                     model.addRow(new Object[]{
-                            u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getUsername(),
-
+                            u.getId(),
+                            u.getName(),
+                            u.getUsername(),
+                            u.getRole(),
+                            u.getEmail()
                     });
                 }
             }
@@ -117,7 +140,7 @@ public class UserGUI extends JFrame {
             List<User> users = userService.getAllUsers();
             for (User u : users) {
                 model.addRow(new Object[]{
-                        u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getUsername(),
+                        u.getId(), u.getName(), u.getUsername(),  u.getRole(), u.getEmail(),
                 });
             }
         }

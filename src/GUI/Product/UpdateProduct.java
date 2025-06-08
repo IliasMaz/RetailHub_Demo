@@ -13,6 +13,7 @@ public class UpdateProduct extends JDialog {
     private JButton saveButton;
     private JButton cancelButton;
     private JPanel panel1;
+    private JComboBox categoryComboBox;
     private Product updatedProduct = null;
     private boolean saved = false;
 
@@ -28,14 +29,14 @@ public class UpdateProduct extends JDialog {
         sellPriceField.setText(String.valueOf(product.getSellPrice()));
         purchasePriceField.setText(String.valueOf(product.getPurchasePrice()));
         stockField.setText(String.valueOf(product.getStock()));
-        categoryField.setText(product.getCategory());
+        categoryComboBox.setSelectedItem(product.getCategory());
 
         saveButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             String sellPriceTxt = sellPriceField.getText().trim();
             String purchasePriceTxt = purchasePriceField.getText().trim();
             String stockTxt = stockField.getText().trim();
-            String category = categoryField.getText().trim();
+            String category = (String) categoryComboBox.getSelectedItem();
 
             if (name.isEmpty() || purchasePriceTxt.isEmpty() || stockTxt.isEmpty() || sellPriceTxt.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please fill all the necessary fields!");

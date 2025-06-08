@@ -11,7 +11,7 @@ public class CreateUser extends JDialog {
     private JTextField usernameField;
     private JLabel nameLabel;
     private JPasswordField passwordField;
-    private JComboBox roleComboBox;
+    private JComboBox<String> roleComboBox;
     private JTextField emailField;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
@@ -48,7 +48,6 @@ public class CreateUser extends JDialog {
                 }
                 try {
 
-
                     if (password.length() < 6) {
                         JOptionPane.showMessageDialog(CreateUser.this, "Password must be at least 6 characters long");
                         return;
@@ -58,15 +57,17 @@ public class CreateUser extends JDialog {
                         JOptionPane.showMessageDialog(CreateUser.this, "Invalid email");
                         return;
                     }
+
                     User user = new User(name, username, password, role, email);
                     saved = true;
                     createdUser = user;
                     JOptionPane.showMessageDialog(CreateUser.this, "User created successfully!");
                     dispose();
-                } catch (NumberFormatException ex) {
+
+                }
+                catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(CreateUser.this, "Invalid input");
                 }
-
             }
         });
         cancelButton.addActionListener(new ActionListener() {

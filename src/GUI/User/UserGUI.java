@@ -79,12 +79,36 @@ public class UserGUI extends JFrame {
 
             }
         });
+
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int row = table1.getSelectedRow();
+                if (row == -1) {
+                    JOptionPane.showMessageDialog(UserGUI.this, "Choose user first!");
+                    return;
+                }
+                int id = (int) table1.getValueAt(row, 0);
+                User userToUpdate = userService.findUserById(id);
+                if (userToUpdate == null) {
+                    JOptionPane.showMessageDialog(UserGUI.this, "User not found!");
+                    return;
+                }
+                UpdateUser dialog = new UpdateUser(userToUpdate);
+                dialog.setVisible(true);
 
+                if (dialog.isSaved()) {
+                    User updated = dialog.getUpdatedUser();
+                    try {
+                        userService.updateUser(updated);
+                        refreshTable();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(UserGUI.this, "Error updating user: " + ex.getMessage());
+                    }
+                }
             }
         });
+
 
         deleteButton.addActionListener(new ActionListener() {
             @Override

@@ -58,15 +58,9 @@ import java.util.List;
         public User loginUser(String username, String rawPassword) {
             User user = userDAO.findUserByUsername(username);
             if (user != null) {
-                // Εδώ θα γίνει η σύγκριση του rawPassword με το αποθηκευμένο (hashed) password
-                // boolean passwordsMatch = PasswordHasher.check(rawPassword, user.getPassword()); // Υποθετική μέθοδος
-                // if (passwordsMatch) {
-                //    return user;
-                // }
-
-                // ΠΡΟΣΩΡΙΝΑ, για το demo ΧΩΡΙΣ hashing, κάνουμε απλή σύγκριση (ΠΟΛΥ ΚΑΚΗ ΠΡΑΚΤΙΚΗ ΓΙΑ ΠΡΑΓΜΑΤΙΚΗ ΕΦΑΡΜΟΓΗ)
+                //TODO PASSWORD HASHING
                 if (user.getPassword().equals(rawPassword)) {
-                    System.out.println("UserService: Login successful for user " + username + " (INSECURE PLAIN TEXT PASSWORD MATCH!)");
+                    System.out.println("UserService: Login successful for user " + username + " ( PASSWORD MATCH!)");
                     return user;
                 } else {
                     System.out.println("UserService: Login failed for user " + username + " - password mismatch.");

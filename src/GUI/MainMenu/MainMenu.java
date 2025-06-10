@@ -4,10 +4,8 @@ import GUI.Customer.CustomerGUI;
 import GUI.Product.ProductGUI;
 import GUI.Sales.SalesGUI;
 import GUI.User.UserGUI;
-import Services.CustomerService;
-import Services.ProductService;
-import Services.SalesService;
-import Services.UserService;
+import Services.*;
+import Entities.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,14 +26,16 @@ public class MainMenu extends JFrame {
     private JPanel mainMenu2ndPanel;
     private JPanel mainMenuFirstPanel;
     private JPanel topMainMenuPanel;
+    private JLabel welcomeLabel;
     private ProductService productService;
     private CustomerService customerService;
     private SalesService salesService;
     private UserService userService;
+    private User loggedInUser;
     private JLabel imageRetailHub;
     //private SalesService salesService;
 
-    public MainMenu(ProductService productService, CustomerService customerService, SalesService salesService, UserService userService){
+    public MainMenu(ProductService productService, CustomerService customerService, SalesService salesService, UserService userService, User loggedInUser){
 
 
 
@@ -49,6 +49,7 @@ public class MainMenu extends JFrame {
         this.productService = productService;
         this.customerService = customerService;
         this.salesService = salesService;
+        this.loggedInUser = loggedInUser;
 
         URL imgUrl = getClass().getResource("/img.png");
 
@@ -56,6 +57,8 @@ public class MainMenu extends JFrame {
         imageRetailHub = new JLabel(icon);
 
         topMainMenuPanel.add(imageRetailHub,FlowLayout.LEFT);
+
+        setupUIBasedOnUserRole();
 
         productsButton1.addActionListener(e -> {
             new ProductGUI(productService);
@@ -75,6 +78,28 @@ public class MainMenu extends JFrame {
         });
 
         this.setVisible(true);
+
+    }
+
+    private void setupUIBasedOnUserRole() {
+
+         welcomeLabel.setText("Welcome,    " + this.loggedInUser.getName() + " !");
+
+
+
+        boolean isAdmin = this.loggedInUser.getRole().equalsIgnoreCase("ADMIN");
+        boolean isManager = this.loggedInUser.getRole().equalsIgnoreCase("MANAGER");
+
+
+        usersButton1.setVisible(isAdmin);
+
+
+        salesButton1.setVisible(true);
+
+
+        customersButton1.setVisible(true);
+        productsButton1.setVisible(true);
+
 
     }
 

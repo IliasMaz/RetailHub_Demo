@@ -1,5 +1,6 @@
 import Connector.SQLiteConnector;
 import DAO.*;
+import Entities.User;
 import GUI.Customer.CustomerGUI;
 import GUI.MainMenu.MainMenu;
 import GUI.Product.ProductGUI;
@@ -23,15 +24,21 @@ public class Main {
         SaleItemDAO saleItemDAO = new SaleItemDAO(productDAO);
         SalesDAO salesDAO = new SalesDAO(customerDAO, saleItemDAO, productDAO);
         SalesService salesService = new SalesService(salesDAO, saleItemDAO, productDAO);
+
         UserDAO userDAO = new UserDAO();
         UserService userService = new UserService(userDAO);
 
 
-        //MainMenu menu = new MainMenu(productService,customerService, salesService);
+        //TODO deactivate comments on the FIRST run of Main so you can have a registered user to log in!!!
+//        User ADMIN = new User("admin", "admin","admin", "ADMIN", "ADMIN");
+//        userService.createUser(ADMIN);
 
-        LogIn login = new LogIn();
-
-
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new LogIn(userService, productService, customerService, salesService);
+            }
+        });
+    }
 
     }
-}
+

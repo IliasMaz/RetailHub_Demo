@@ -7,6 +7,7 @@ import Services.CustomerService;
 import Services.ProductService;
 import Services.SalesService;
 import Services.UserService;
+import Entities.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +41,20 @@ public class LogIn extends JFrame {
     private JPanel panelForImage;
     private JLabel imageRetailHub;
 
-    public LogIn(){
+    private UserService userService;
+    private ProductService productService;
+    private CustomerService customerService;
+    private SalesService salesService;
+
+    public LogIn(UserService userService, ProductService productService, CustomerService customerService, SalesService salesService) {
+        // Αρχικοποίηση των πεδίων service
+        if (userService == null || productService == null || customerService == null || salesService == null) {
+            throw new IllegalArgumentException("Services cannot be null");
+        }
+        this.userService = userService;
+        this.productService = productService;
+        this.customerService = customerService;
+        this.salesService = salesService;
 
 
         setTitle("RetailHub - Login page");
@@ -59,9 +73,32 @@ public class LogIn extends JFrame {
         setVisible(true);
 
         loginButton.addActionListener(new ActionListener() {
+
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                goToNextFrame();
+                String username = usernameTextField.getText().trim();
+                String password = new String(passwordTextField.getPassword());
+
+                if (username.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(LogIn.this,
+                            "Please enter both username and password.",
+                            "Login Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                User loggedInUser = userService.loginUser(username, password);
+
+                if (loggedInUser != null) {
+                    JOptionPane.showMessageDialog(LogIn.this, "Welcome " + loggedInUser.getName() + "!");
+                    goToMainMenu(loggedInUser);
+                } else {
+                    JOptionPane.showMessageDialog(LogIn.this,
+                            "Invalid username or password.",
+                            "Login Failed",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -70,22 +107,10 @@ public class LogIn extends JFrame {
 
 
 
-    private void goToNextFrame() {
+    private void goToMainMenu(User loggedInUser) {
 
-        ProductDAO productDAO = new ProductDAO();
-        ProductService productService = new ProductService(productDAO);
-
-        CustomerDAO customerDAO = new CustomerDAO();
-        CustomerService customerService = new CustomerService(customerDAO);
-
-        SaleItemDAO saleItemDAO = new SaleItemDAO(productDAO);
-        SalesDAO salesDAO = new SalesDAO(customerDAO, saleItemDAO, productDAO);
-        SalesService salesService = new SalesService(salesDAO, saleItemDAO, productDAO);
-        UserDAO userDAO = new UserDAO();
-        UserService userService = new UserService(userDAO);
-
-        MainMenu mainMenu = new MainMenu(productService, customerService, salesService, userService);
-
+        MainMenu mainMenu = new MainMenu(productService, customerService, salesService, userService, loggedInUser);
+        mainMenu.setVisible(true);
 
         this.dispose();
     }
